@@ -4,12 +4,13 @@ export default function PromoPage() {
   return (
     <div className="container">
       <div className="promo__topBar">
-        <a href="login.html" className="">
-          Вход
-        </a>
-        <a href="register.html" className="button">
-          Регистрация
-        </a>
+        <div className="promo__topBar_logo"></div>
+        <div className="promo__topBar_btns">
+          <button className="buttons promo__topBar_btns-btn">Вход</button>
+          <button className="buttons promo__topBar_btns-btn">
+            Регистрация
+          </button>
+        </div>
       </div>
       <div className="promo__content">
         <h2>О приложении</h2>
