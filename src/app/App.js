@@ -1,15 +1,12 @@
-import AuthPage from "../components/pages/authPages/AuthPage";
-import PromoPage from "../components/pages/promoPage/PromoPage";
+import AuthPage from "../components/pages/authPages/authPage/AuthPage";
 import "./App.scss";
 
 const App = () => {
   const isVisible = {
-    promoPage: true,
-    loginPage: false,
+    loginPage: true,
     registrationPage: false,
   }; // Позже заменить на реальную проверку!
 
-  if (!isVisible.promoPage) {
     return (
       <>
         <AuthPage
@@ -20,9 +17,6 @@ const App = () => {
         />
       </>
     );
-  } else if (isVisible.promoPage) {
-    return <PromoPage />;
-  }
-};
+}
 
 export default App;
