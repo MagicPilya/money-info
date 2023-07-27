@@ -1,0 +1,31 @@
+.registration {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  &__logo {
+    align-self: center;
+    width: 300px;
+    height: 300px;
+    background-image: url("../../../../img/logo.png");
+    background-size: cover;
+  }
+  &__label {
+    font-size: 25px;
+    margin-bottom: 5px;
+    font-weight: 700;
+    
+  }
+  &__input {
+    padding: 15px;
+    width: 100%;
+    border: none;
+    font-size: 20px;
+    margin-bottom: 30px;
+  }
+  &__info {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+  }
+}
