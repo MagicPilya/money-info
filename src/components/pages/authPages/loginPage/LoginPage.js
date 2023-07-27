@@ -5,13 +5,14 @@ import {
   switchActivityAccount,
 } from "../../../../firebase/database";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
 
 export default function LoginPage(props) {
   const { email, setEmail, password, setPassword } = props;
 
   const [errorMessage = "", setErrorMessage] = useState();
 
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   return (
     <div className="auth">
@@ -54,10 +55,7 @@ export default function LoginPage(props) {
             signIn(email, password).then(async (data) => {
               await switchActivityAccount(email);
               await readDocument(email);
-              dispatch({
-                type: "CHANGE_VISIBILITY_OF_PAGE",
-                payload: { page: "mainPage", visibility: true }
-              })
+              await navigate('/')
             });
           }}
         >
@@ -66,10 +64,7 @@ export default function LoginPage(props) {
         <div
           className="buttons buttons__login"
           onClick={() =>
-            dispatch({
-              type: "CHANGE_VISIBILITY_OF_PAGE",
-              payload: { page: "registrationPage", visibility: true },
-            })
+            navigate("/sign-up")
           }
         >
           <p className="text">Регистрация</p>

@@ -1,14 +1,17 @@
-import React from 'react'
-import { getToken } from '../../../firebase/auth'
+import React from "react";
+import { signAccountOut } from "../../../firebase/auth";
+import { useNavigate } from "react-router";
+
+import useProtectedRoute from "../../../hooks/useProtectedRoute";
 
 export default function MainPage() {
-  return (
-    <div>MainPage
-      <button
-        onClick={()=> getToken()}
-      >
-        CheckTokenId
-      </button>
-    </div>
-  )
-}
+  let navigate = useNavigate();
+
+  useProtectedRoute();
+      return(
+      <div>
+        MainPage
+        <button onClick={() =>  signAccountOut()}>Logout</button>
+      </div>
+      )
+  };

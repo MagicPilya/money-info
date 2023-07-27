@@ -1,49 +1,46 @@
-import { connect } from "react-redux";
-import { auth } from "../firebase";
-import AuthPage from "../components/pages/authPages/authPage/AuthPage";
+import {useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import MainPage from "../components/pages/mainPage/MainPage";
+import LoginPage from "../components/pages/authPages/loginPage/LoginPage";
+import RegistrationPage from "../components/pages/authPages/registrationPage/RegistrationPage";
+
 import "./App.scss";
-import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-const App = (props) => {
+// import { connect } from "react-redux";
+const App = () => {
   const [email = "", setEmail] = useState();
   const [password = "", setPassword] = useState();
 
-  const isVisible = {
-    loginPage: props.store.pages.loginPage.visibility,
-    registrationPage: props.store.pages.registrationPage.visibility,
-    mainPage: props.store.pages.mainPage.visibility,
-  };
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      console.log('user exists!')
-
-      return (
-        <>
-          <MainPage></MainPage>
-        </>
-      );
-    } else {
-      console.log('user not exists!')
-      return (
-        <>
-          <AuthPage
-            isLogged={{
-              loginPage: isVisible.loginPage,
-              registrationPage: isVisible.registrationPage,
-            }}
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={<MainPage />}
+      />
+      <Route
+        path="/sign-in"
+        element={
+          <LoginPage
             email={email}
             setEmail={setEmail}
             password={password}
             setPassword={setPassword}
           />
-        </>
-      );
-    }
-  });
-  // if (!isVisible.mainPage) {
-  //   // } else if (isVisible.mainPage) return (
-  // }
+        }
+      />
+      <Route
+        path="/sign-up"
+        element={
+          <RegistrationPage
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+          />
+        }
+      />
+    </Routes>
+  );
 };
-export default connect((state) => ({ store: state }))(App);
+
+// export default connect((state) => ({ store: state }))(App);
+export default App;

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { signUp} from '../../../../firebase/auth';
 import { addUser, switchActivityAccount } from "../../../../firebase/database";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
 
 export default function LoginPage(props) {
   const [name = '', setName] = useState();
@@ -10,7 +11,7 @@ export default function LoginPage(props) {
 
   const [errorMessage = '', setErrorMessage] = useState();
 
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   return (
     <div className="auth">
@@ -72,12 +73,10 @@ export default function LoginPage(props) {
         </div>
         <div 
           className="buttons buttons__registration"
-          onClick={() =>
-              dispatch({
-                type: "CHANGE_VISIBILITY_OF_PAGE",
-                payload: { page: "loginPage", visibility: true },
-              })
-            }
+          onClick={() =>{
+            navigate('/sign-in')
+          }}
+
         >
           <p className="text">Войти</p>
         </div>

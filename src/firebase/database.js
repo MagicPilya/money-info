@@ -1,10 +1,8 @@
 import { getFirestore } from "firebase/firestore";
 import { app } from ".";
-// import { memoryLocalCache } from "firebase/firestore";
 import { doc, getDoc, collection, getDocs, setDoc, updateDoc } from "firebase/firestore";
 
 const db = getFirestore(app);
-// {localCash: memoryLocalCache()}
 
 export const readValue = async () => {
   return new Promise(async (resolve, reject) => {

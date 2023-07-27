@@ -1,5 +1,5 @@
 import { auth } from ".";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, setPersistence, inMemoryPersistence  } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut  } from "firebase/auth";
 
 export const signIn = (email, password) => {
   return new Promise((resolve, reject) => {
@@ -17,23 +17,9 @@ export const signUp = (email, password) => {
   })
 }
 
-export const getToken = () => {
-  auth.currentUser.getIdToken(true).then(token => {
-    // console.log(token)
+export const signAccountOut =  () => {
+  signOut(auth)
+  .then(() => {
   })
-  setPersistence(auth, inMemoryPersistence)
-  .then((answer) => {
-    return answer
-  })
-}
-
-export const onChangeIdToken = (email, password) => {
-  auth.onIdTokenChanged( (user) => {
-    if (user) {
-      signIn(email, password);
-    }
-    else {
-
-    }
-  })
+  .catch ((error) => console.log(error))
 }
