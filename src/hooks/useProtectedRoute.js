@@ -13,7 +13,7 @@ export default function useProtectedRoute() {
           'Access to protected route denied, redirecting to login...'
         );
         navigate('/sign-in');
-      }
+      } 
     });
   }, [navigate]);
 }
