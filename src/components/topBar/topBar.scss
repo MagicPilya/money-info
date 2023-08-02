@@ -1,0 +1,12 @@
+.topBar {
+  margin: 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  &__totalMoney {
+    margin-left: 20px;
+    font-size: 20px;
+    font-weight: 500;
+  }
+}

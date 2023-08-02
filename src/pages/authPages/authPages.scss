@@ -1,5 +1,5 @@
-@import url('./loginPage/loginPage.scss');
-@import url('./registrationPage/registrationPage.scss');
+@import url("./loginPage/loginPage.scss");
+@import url("./registrationPage/registrationPage.scss");
 .auth {
   display: flex;
   padding: 30px;
@@ -15,11 +15,4 @@
     background-image: url("../../img/logo.png");
     background-size: cover;
   }
-}
-.text {
-  background: linear-gradient(90deg, #12df64 0%, #0af869 97.92%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  mix-blend-mode: difference;
 }
