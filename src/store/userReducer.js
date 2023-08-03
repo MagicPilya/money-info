@@ -6,7 +6,10 @@ const userReducer = createReducer({}, (builder) => {
       state.user =  action.payload;
     })
     .addCase("SET_ACTIVE_CURRENCY", (state, action) => {
-      state.user.userInfo.savedData.currentCurrency = action.payload;
+      state.user.userInfo.currentCurrency = action.payload;
+    })
+    .addCase("SET_ACTIVE_ACCOUNT", (state, action) => {
+      state.user.userInfo.currentAccount = action.payload;
     })
 })
 

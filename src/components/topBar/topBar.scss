@@ -1,12 +1,17 @@
+@import url("../accountsList/accountsList.scss");
+@import url("../currency/currency.scss");
 .topBar {
   margin: 0;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   &__totalMoney {
-    margin-left: 20px;
-    font-size: 20px;
-    font-weight: 500;
+    display: flex;
+    align-items: center;
+  }
+  &__currency {
+    display: flex;
+    align-items: center;
   }
 }

@@ -3,12 +3,21 @@ import { connect } from "react-redux";
 import { MenuItem, Menu, Button, Fade } from "@mui/material";
 import { signAccountOut } from "../../firebase/auth";
 import Currency from "../currency/Currency";
+import AccountsList from "../accountsList/AccountsList";
 import { getCurrencies } from "../../firebase/database";
 
 function TopBar(props) {
-  const { name, totalMoney, currentCurrency, uid, currenciesList } = props;
+  const {
+    name,
+    totalMoney,
+    currentCurrency,
+    uid,
+    currenciesList,
+    accounts,
+    currentAccount,
+  } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [currencies, setCurrencies ] = React.useState([]);
+  const [currencies, setCurrencies] = React.useState([]);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -18,24 +27,25 @@ function TopBar(props) {
   };
 
   React.useEffect(() => {
-    getCurrencies(uid).then(answer => setCurrencies(answer))
-  }, [])
+    getCurrencies(uid).then((answer) => setCurrencies(answer));
+  }, []);
   return (
     <div className="topBar">
       <Button
-        id="fade-button"
-        aria-controls={open ? "fade-menu" : undefined}
+        id="account-button"
+        aria-controls={open ? "account-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
         color="success"
+        sx={{ fontSize: "20px" }}
       >
         {name}
       </Button>
       <Menu
-        id="fade-menu"
+        id="account-menu"
         MenuListProps={{
-          "aria-labelledby": "fade-button",
+          "aria-labelledby": "account-button",
         }}
         anchorEl={anchorEl}
         open={open}
@@ -46,42 +56,24 @@ function TopBar(props) {
         <MenuItem onClick={handleClose}>My account</MenuItem> */}
         <MenuItem onClick={() => signAccountOut()}>Logout</MenuItem>
       </Menu>
-      <p className="topBar__totalMoney">Всего: {totalMoney}</p>
+
       <div className="topBar__currency">
         <Currency
+          uid={uid}
+          totalMoney={totalMoney}
           currentCurrency={currentCurrency}
           currenciesList={currenciesList}
-        ></Currency>
+        />
       </div>
       <div className="topBar__account">
-      Счёт:
-      <Button
-        id="fade-button"
-        aria-controls={open ? "fade-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-        onClick={handleClick}
-        color="success"
-      >
-        
-      </Button>
-      <Menu
-        id="fade-menu"
-        MenuListProps={{
-          "aria-labelledby": "fade-button",
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        TransitionComponent={Fade}
-      >
-        {/* <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My account</MenuItem> */}
-        <MenuItem onClick={() => signAccountOut()}>Logout</MenuItem>
-      </Menu>
+        <AccountsList
+          uid={uid}
+          currentAccount={currentAccount}
+          accounts={accounts}
+        />
       </div>
     </div>
   );
 }
 
-export default connect((state) => ({ store: state }))(TopBar);
+export default TopBar;

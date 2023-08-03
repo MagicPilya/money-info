@@ -1,9 +1,10 @@
 import * as React from "react";
 import { MenuItem, Menu, Button, Fade } from "@mui/material";
 import { useDispatch } from "react-redux";
+import { setCurrentCurrency } from "../../firebase/database";
 
 export default function Currency(props) {
-  const { currentCurrency, currenciesList } = props;
+  const { currentCurrency, currenciesList, totalMoney, uid } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const dispatch = useDispatch();
@@ -14,7 +15,8 @@ export default function Currency(props) {
     setAnchorEl(null);
   };
   return (
-    <div>
+    <div className="currency">
+      Всего: {totalMoney}
       <Button
         id="fade-button"
         aria-controls={open ? "fade-menu" : undefined}
@@ -22,6 +24,7 @@ export default function Currency(props) {
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
         color="success"
+        sx={{fontSize: "20px"}}
       >
         {currentCurrency}
       </Button>
@@ -38,9 +41,10 @@ export default function Currency(props) {
         {currenciesList.map((item, key) => (
           <MenuItem
           key={key}
-            onClick={()=> {
-              dispatch({type:"SET_ACTIVE_CURRENCY", payload: item});
-              handleClose();
+            onClick={async ()=> {
+              await dispatch({type:"SET_ACTIVE_CURRENCY", payload: item});
+              await setCurrentCurrency(uid, item)
+              await handleClose();
             }}
               >{item}
             </MenuItem>

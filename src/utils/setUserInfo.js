@@ -1,18 +1,24 @@
-import { getUser, getCurrencies } from "../firebase/database";
+import { getUser, getCurrencies, getAccounts } from "../firebase/database";
 
 export const setUserInfo = async () => {
   return new Promise(async (resolve, reject) => {
     let user = "",
-      currency = "";
-    await getUser(localStorage.getItem("user")).then((answer) => {
+      currency = "",
+      accounts = "";
+      const uid = localStorage.getItem("user");
+    await getUser(uid).then((answer) => {
       user = answer;
     });
-    await getCurrencies(localStorage.getItem("user")).then((answer) => {
+    await getCurrencies(uid).then((answer) => {
       currency = answer;
     });
+    await getAccounts(uid).then((answer) => {
+      accounts = answer.accounts;
+    })
     resolve({
       userInfo: user,
       currency,
+      accounts,
     });
   });
 };
