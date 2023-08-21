@@ -1,10 +1,10 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import { MenuItem, Menu, Button, Fade } from "@mui/material";
 import { signAccountOut } from "../../firebase/auth";
 import Currency from "../currency/Currency";
 import AccountsList from "../accountsList/AccountsList";
-import { getCurrencies } from "../../firebase/database";
+import AddCurrencyModal from "../../modal/addCurrency/AddCurrencyModal";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function TopBar(props) {
   const {
@@ -17,7 +17,6 @@ function TopBar(props) {
     currentAccount,
   } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [currencies, setCurrencies] = React.useState([]);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -26,9 +25,6 @@ function TopBar(props) {
     setAnchorEl(null);
   };
 
-  React.useEffect(() => {
-    getCurrencies(uid).then((answer) => setCurrencies(answer));
-  }, []);
   return (
     <div className="topBar">
       <Button
@@ -41,6 +37,7 @@ function TopBar(props) {
         sx={{ fontSize: "20px" }}
       >
         {name}
+        <ExpandMoreIcon/>
       </Button>
       <Menu
         id="account-menu"
@@ -52,9 +49,15 @@ function TopBar(props) {
         onClose={handleClose}
         TransitionComponent={Fade}
       >
-        {/* <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My account</MenuItem> */}
-        <MenuItem onClick={() => signAccountOut()}>Logout</MenuItem>
+        {/* <MenuItem onClick={handleClose}>Profile</MenuItem> */}
+        <MenuItem
+          onClick={async () => {
+            await signAccountOut();
+            await handleClose();
+          }}
+        >
+          Logout
+        </MenuItem>
       </Menu>
 
       <div className="topBar__currency">
@@ -70,6 +73,7 @@ function TopBar(props) {
           uid={uid}
           currentAccount={currentAccount}
           accounts={accounts}
+          currenciesList={currenciesList}
         />
       </div>
     </div>

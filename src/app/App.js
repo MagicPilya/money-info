@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import MainPage from "../pages/mainPage/MainPage";
 import LoginPage from "../pages/authPages/loginPage/LoginPage";
@@ -10,6 +10,10 @@ const App = () => {
   const [email = "", setEmail] = useState();
   const [password = "", setPassword] = useState();
   const [user, setUser] = useState();
+
+  useEffect(()=> {
+    document.title="Money-info"
+  }, [])
 
   return (
     <Routes>

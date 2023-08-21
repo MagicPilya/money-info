@@ -41,7 +41,10 @@ function MainPage(props) {
             currentAccount={store.currentUser.user.userInfo.currentAccount}
           ></TopBar>
         </div>
+        <div className="main">
+        </div>
       </div>
+
     );
   }
 }

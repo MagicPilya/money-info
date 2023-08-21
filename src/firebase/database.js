@@ -7,6 +7,8 @@ import {
   getDocs,
   setDoc,
   updateDoc,
+  arrayUnion,
+  arrayRemove
 } from "firebase/firestore";
 const db = getFirestore(app);
 
@@ -93,4 +95,25 @@ export const setCurrentAccount = async(userId, currentAccount) => {
   await updateDoc(docRef, {
     currentAccount: currentAccount,
   });
+}
+
+export const addCurrency = async(userId, currency) => {
+  const docRef = doc(db, "currencies", userId);
+  await updateDoc(docRef, {
+    currencies: arrayUnion(currency)
+});
+}
+
+export const addAccount = async(userId, account) => {
+  const docRef = doc(db, "accounts", userId);
+  await updateDoc(docRef, {
+    accounts: arrayUnion(account)
+  })
+}
+
+export const deleteCurrency = async(userId, currency) => {
+  const docRef = doc(db, "currencies", userId);
+  await updateDoc(docRef, {
+    currencies: arrayRemove(currency)
+});
 }
