@@ -8,7 +8,8 @@ import {
   setDoc,
   updateDoc,
   arrayUnion,
-  arrayRemove
+  arrayRemove,
+  deleteDoc,
 } from "firebase/firestore";
 const db = getFirestore(app);
 
@@ -72,13 +73,17 @@ export const getCurrencies = async (userID) => {
 export const getAccounts = async (userID) => {
   return new Promise((resolve, reject) => {
     setPath(userID).then(async (answer) => {
-      const docRef = doc(db, "accounts", answer);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        resolve(docSnap.data());
-      } else {
-        console.log("No such document!");
+      let finalArray = [];
+      for (let i = 0; i > -1; i++) {
+        let docRef = doc(db, "accounts", answer, "accounts", `${i}`);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          finalArray.push(docSnap.data());
+        } else {
+          break;
+        }
       }
+      resolve(finalArray);
     });
   });
 };
@@ -90,30 +95,59 @@ export const setCurrentCurrency = async (userId, currentCurrency) => {
   });
 };
 
-export const setCurrentAccount = async(userId, currentAccount) => {
+export const setCurrentAccount = async (userId, currentAccount, index) => {
   const docRef = doc(db, "users", userId);
   await updateDoc(docRef, {
     currentAccount: currentAccount,
+    currentAccountIndex: index
+  });
+};
+
+export const addCurrency = async (userId, currency) => {
+  const docRef = doc(db, "currencies", userId);
+  await updateDoc(docRef, {
+    currencies: arrayUnion(currency),
+  });
+};
+
+export const addAccount = async (userId, account, id) => {
+  const docRef = doc(db, "accounts", userId, "accounts", `${id}`);
+  await setDoc(docRef, {
+    name: account.name,
+    currency: account.currency,
+    totalMoney: account.totalMoney
+  });
+};
+
+export const deleteCurrency = async (userId, currency) => {
+  const docRef = doc(db, "currencies", userId);
+  await updateDoc(docRef, {
+    currencies: arrayRemove(currency),
+  });
+};
+
+export const renameAccount = async (userId, index, newName) => {
+  const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
+  await updateDoc(docRef, {
+    name: newName,
+  });
+};
+
+export const deleteAccount = async (userId, index) => {
+  const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
+  await deleteDoc(docRef);
+}
+
+export const correctBalance = async (userId, index, newBalance) => {
+  const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
+  await updateDoc(docRef, {
+    totalMoney: newBalance,
   });
 }
 
-export const addCurrency = async(userId, currency) => {
-  const docRef = doc(db, "currencies", userId);
+export const setCurrentCurrencyIndex = async (userId, index) => {
+  const docRef = doc(db, "users", userId);
   await updateDoc(docRef, {
-    currencies: arrayUnion(currency)
-});
-}
-
-export const addAccount = async(userId, account) => {
-  const docRef = doc(db, "accounts", userId);
-  await updateDoc(docRef, {
-    accounts: arrayUnion(account)
-  })
-}
-
-export const deleteCurrency = async(userId, currency) => {
-  const docRef = doc(db, "currencies", userId);
-  await updateDoc(docRef, {
-    currencies: arrayRemove(currency)
-});
+    currentCurrencyIndex: index,
+  });
 }

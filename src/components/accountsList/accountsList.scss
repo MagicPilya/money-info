@@ -13,4 +13,21 @@
       color: green;
     }
   }
+  &__settings {
+    padding: 10px;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    transition: all 0.3s;
+    &-title {
+      margin: 0 10px;
+    }
+    &:hover {
+      background: rgba(46, 125, 50, 0.5);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+  }
 }

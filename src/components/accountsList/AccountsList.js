@@ -1,59 +1,155 @@
-import { MenuItem, Menu, Button, Fade } from "@mui/material";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setCurrentAccount } from "../../firebase/database";
+
+import { MenuItem, Menu, Button, Fade } from "@mui/material";
+import {
+  ExpandMore,
+  Settings,
+  Abc,
+  Percent,
+  Timeline,
+  CreditCardOff,
+  BreakfastDiningOutlined,
+} from "@mui/icons-material";
+
+import {
+  setCurrentAccount,
+  renameAccount,
+  deleteAccount,
+  correctBalance,
+} from "../../firebase/database";
+import AddSomeDataWithOneInput from "../../modal/addSomeDataWithOneInput/AddSomeDataWithOneInput";
 import AddAccountModal from "../../modal/addAccount/AddAccountModal";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PreDeleteDialog from "../../modal/info/PreDeleteDialog";
 
 export default function AccountsList(props) {
-  const { accounts, currentAccount, uid, currenciesList } = props;
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [currencies, setCurrencies] = useState([]);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const { accounts, currentAccount, uid, currenciesList, currentAccountIndex } =
+    props;
   const dispatch = useDispatch();
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorElSettings, setAnchorElSettings] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const open = Boolean(anchorEl);
+  const openSettings = Boolean(anchorElSettings);
+  const handleClick = (event, setter) => {
+    setter(event.currentTarget);
+  };
+  const handleClose = (setter) => {
+    setter(null);
+  };
+
+  const iconsStyle = {
+    marginRight: "5px",
+  };
+
+  const handleActiveAccount = async (name) => {
+    const index = getAccountIndex(name);
+    await setCurrentAccount(uid, name, index);
+    await dispatch({
+      type: "SET_ACTIVE_ACCOUNT",
+      payload: {
+        name: name,
+        index: index,
+      },
+    });
+    await handleClose(setAnchorEl);
+  };
+
+  const handleSubmitRename = async (newName) => {
+    const index = getAccountIndex(currentAccount);
+    await renameAccount(uid, index, newName);
+    await dispatch({
+      type: "RENAME_ACCOUNT",
+      payload: { index: index, name: newName },
+    });
+
+    await dispatch({
+      type: "SET_ACTIVE_ACCOUNT",
+      payload: { name: newName, index: getAccountIndex(currentAccount) },
+    });
+  };
+
+  const handleSubmitCorrect = async (newBalance) => {
+    await correctBalance(uid, currentAccountIndex, newBalance);
+    await dispatch({
+      type: "CORRECT_ACCOUNT_BALANCE",
+      payload: { newBalance: newBalance, index: currentAccountIndex },
+    });
+  };
+
+  const handleDelete = async () => {
+    const name = getNextAccountName();
+    await setCurrentAccount(
+      uid,
+      getNextAccountName(),
+      +(currentAccountIndex + 1)
+    );
+    await dispatch({
+      type: "SET_ACTIVE_ACCOUNT",
+      payload: {
+        name: `${name}`,
+        index: +(currentAccountIndex + 1),
+      },
+    });
+    await deleteAccount(uid, currentAccountIndex);
+    await dispatch({
+      type: "DELETE_ACCOUNT",
+      payload: currentAccountIndex,
+    });
+  };
+
+  function getNextAccountName() {
+    for (let i = 0; i < accounts.length; i++) {
+      if (accounts[i].name === currentAccount && i === 0) {
+        return accounts[i + 1].name;
+      } else {
+        return accounts[0].name;
+      }
+    }
+  }
+
+  function getAccountIndex(accountName) {
+    let index = null;
+    accounts.map((item, i) => {
+      if (item.name === accountName) {
+        index = i;
+      }
+    });
+    return index;
+  }
 
   return (
     <div className="accountsList">
       <div className="accountsList__currentAccount">
-        Счёт:
+        Активный счёт:
         <Button
           id="currency-button"
           aria-controls={open ? "currency-menu" : undefined}
           aria-haspopup="true"
           aria-expanded={open ? "true" : undefined}
-          onClick={handleClick}
+          onClick={(e) => handleClick(e, setAnchorEl)}
           color="success"
           sx={{ fontSize: "20px" }}
         >
           {currentAccount}
-          <ExpandMoreIcon/>
+          <ExpandMore />
         </Button>
         <Menu
-          id="currency-menu"
+          id="account-menu"
           MenuListProps={{
-            "aria-labelledby": "currency-button",
+            "aria-labelledby": "account-button",
           }}
           anchorEl={anchorEl}
           open={open}
-          onClose={handleClose}
+          onClose={() => handleClose(setAnchorEl)}
           TransitionComponent={Fade}
         >
           {accounts.map((item, key) => (
             <MenuItem
               key={key}
               onClick={async () => {
-                await setCurrentAccount(uid, item.name);
-                await dispatch({
-                  type: "SET_ACTIVE_ACCOUNT",
-                  payload: item.name,
-                });
-                await handleClose();
+                handleActiveAccount(item.name);
               }}
             >
               {item.name}
@@ -61,17 +157,19 @@ export default function AccountsList(props) {
           ))}
           <AddAccountModal
             currenciesList={currenciesList}
-            uid={uid}  
-          >
-          </AddAccountModal>
+            uid={uid}
+            accountsList={accounts}
+          ></AddAccountModal>
         </Menu>
       </div>
+
+      {/* Отображение количества грошей и в какой валюте к конкретному счёту */}
       {accounts
         .filter((item) => item.name.includes(currentAccount))
         .map((filteredItem, key) => (
           <div className="accountsList__accountState" key={key + "sss"}>
             <div className="accountsList__accountState-total" key={key}>
-              {filteredItem.total}
+              {filteredItem.totalMoney}
             </div>
             <div
               className="accountsList__accountState-currency"
@@ -81,6 +179,52 @@ export default function AccountsList(props) {
             </div>
           </div>
         ))}
+
+      <div
+        className="accountsList__settings"
+        onClick={(e) => handleClick(e, setAnchorElSettings)}
+      >
+        <p className="accountsList__settings-title">Настройки счёта</p>
+        <Settings />
+      </div>
+      <Menu
+        id="account-settings-menu"
+        MenuListProps={{
+          "aria-labelledby": "accountsList__settings",
+        }}
+        anchorEl={anchorElSettings}
+        open={openSettings}
+        onClose={() => handleClose(setAnchorElSettings)}
+        TransitionComponent={Fade}
+      >
+        <AddSomeDataWithOneInput
+          triggerName="Сменить название счёта"
+          title="Изменение названия счета"
+          handleSubmit={handleSubmitRename}
+          placeholder="Название счёта"
+          svg={<Abc sx={iconsStyle} />}
+        ></AddSomeDataWithOneInput>
+        <AddSomeDataWithOneInput
+          triggerName="Скорректировать остатки по счёту"
+          title="Коррекция остатков"
+          handleSubmit={handleSubmitCorrect}
+          placeholder="Фактический баланс"
+          svg={<Percent color="warning" sx={iconsStyle} />}
+          inputType="number"
+        ></AddSomeDataWithOneInput>
+        <MenuItem>
+          <Timeline sx={iconsStyle} /> Добавить операцию
+        </MenuItem>
+        <MenuItem onClick={() => setOpenDialog(true)}>
+          <CreditCardOff sx={iconsStyle} color="error" /> Удалить счёт
+        </MenuItem>
+      </Menu>
+      <PreDeleteDialog
+        handleAction={handleDelete}
+        trigger={openDialog}
+        triggerSetter={setOpenDialog}
+        title="счёт"
+      />
     </div>
   );
 }

@@ -1,9 +1,7 @@
-import * as React from "react";
-import Backdrop from "@mui/material/Backdrop";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import Fade from "@mui/material/Fade";
-import Typography from "@mui/material/Typography";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+
+import AddCardIcon from '@mui/icons-material/AddCard';
 import {
   MenuItem,
   TextField,
@@ -11,15 +9,20 @@ import {
   InputLabel,
   Select,
   Button,
+  Typography,
+  Fade,
+  Modal,
+  Box,
+  Backdrop,
 } from "@mui/material";
-import { CircularProgress } from "@mui/joy";
-import AddCurrencyModal from "../addCurrency/AddCurrencyModal";
-import { useDispatch } from "react-redux";
-import { addAccount, setCurrentAccount } from "../../firebase/database";
+
+import { addAccount, addCurrency } from "../../firebase/database";
+
+import AddSomeDataWithOneInput from "../addSomeDataWithOneInput/AddSomeDataWithOneInput";
 
 const style = {
   display: "flex",
-  "flexDirection": "column",
+  flexDirection: "column",
   position: "absolute",
   top: "50%",
   left: "50%",
@@ -32,22 +35,42 @@ const style = {
 };
 
 export default function AddAccountModal(props) {
+  const { currenciesList, uid, accountsList } = props;
   const dispatch = useDispatch();
-  const { currenciesList, uid } = props;
-  const [open, setOpen] = React.useState(false);
+
+  const [name = "", setName] = useState();
+  const [balance = 0, setBalance] = useState();
+  const [currency = "", setCurrency] = useState();
+
+  const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const [name = "", setName] = React.useState();
-  const [balance = 0, setBalance] = React.useState();
-  const [currency = "", setCurrency] = React.useState();
+
   let accountInfo = {
-    total: balance,
+    totalMoney: balance,
     currency: currency,
     name: name,
   };
+
+  const handleSubmitCurrency = async (currencyName) => {
+      await addCurrency(uid, currencyName);
+      await dispatch({type:"ADD_CURRENCY", payload: currencyName});
+  }
+
+  const crearState = () => {
+    setName("");
+    setBalance("");
+    setCurrency("");
+  }
+
   return (
     <div>
-      <MenuItem onClick={handleOpen}>Добавить счёт</MenuItem>
+      <MenuItem onClick={handleOpen}>
+        <div className="modal__addAcount-triggerName">
+          Добавить счёт
+        </div>
+        <AddCardIcon sx={{"marginLeft": "5px"}} color="success"/>
+      </MenuItem>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -103,14 +126,19 @@ export default function AddAccountModal(props) {
                   </MenuItem>
                 ))}
 
-                <AddCurrencyModal uid={uid} />
-                {/* <MenuItem value={30}>Thirty</MenuItem> */}
+                <AddSomeDataWithOneInput
+                  triggerName="Добавить валюту"
+                  title="Добавление валюты"
+                  handleSubmit={handleSubmitCurrency}
+                  placeholder="Валюта"
+                />
               </Select>
             </FormControl>
             <Button
-              onClick={ async () => {
+              onClick={async () => {
                 await dispatch({ type: "ADD_ACCOUNT", payload: accountInfo });
-                await addAccount(uid, accountInfo)
+                await addAccount(uid, accountInfo, accountsList.length);
+                await crearState();
                 await handleClose();
               }}
               variant="contained"

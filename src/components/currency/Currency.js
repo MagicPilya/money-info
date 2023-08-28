@@ -1,17 +1,20 @@
-import * as React from "react";
-import { MenuItem, Menu, Button, Fade } from "@mui/material";
+import { useEffect, useState } from 'react';
 import { useDispatch } from "react-redux";
-import { setCurrentCurrency } from "../../firebase/database";
-import IconButton from "@mui/material/IconButton";
-import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import InfoModal from "../../modal/info/InfoModal";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+import { MenuItem, Menu, Button, Fade, IconButton } from "@mui/material";
+import {RemoveCircleOutline, ExpandMore} from "@mui/icons-material";
+
+import { setCurrentCurrency, deleteCurrency } from "../../firebase/database";
+import PreDeleteDialog from "../../modal/info/PreDeleteDialog";
 
 export default function Currency(props) {
-  const { currentCurrency, currenciesList, totalMoney, uid } = props;
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
+  const { currentCurrency, currenciesList, totalMoney, uid, currentCurrencyIndex } = props;
   const dispatch = useDispatch();
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [currency, setCurrency] = useState("");
+  const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -19,9 +22,10 @@ export default function Currency(props) {
     setAnchorEl(null);
   };
 
-  const [isDelete = false, setIsDelete] = React.useState();
-  const [item = '', setItem] = React.useState();
-  const [key = '', setKey] = React.useState();
+  const handleDelete = async () => {
+    await deleteCurrency(uid, currency);
+    await dispatch({ type: "DELETE_CURRENCY", payload: currency });  
+  }
 
   return (
     <div className="currency">
@@ -36,7 +40,7 @@ export default function Currency(props) {
         sx={{ fontSize: "20px" }}
       >
         {currentCurrency}
-        <ExpandMoreIcon/>
+        <ExpandMore/>
       </Button>
       <Menu
         id="fade-menu"
@@ -53,14 +57,16 @@ export default function Currency(props) {
             <p
               style={{ width: "100%", height: "100%", margin: "10px 10px" }}
               onClick={async () => {
-                if (!isDelete) {
                   await dispatch({
                     type: "SET_ACTIVE_CURRENCY",
                     payload: item,
                   });
                   await setCurrentCurrency(uid, item);
+                  await dispatch({
+                    type: "SET_ACTIVE_CURRENCY_INDEX",
+                    payload: key,
+                  });
                   await handleClose();
-                }
               }}
             >
               {item}
@@ -69,25 +75,23 @@ export default function Currency(props) {
               aria-label="delete"
               onClick={ () => {
                 if (item !== currentCurrency) {
-                  setIsDelete(true);
+                  setCurrency(item);
+                  setOpenDialog(true);
+                  handleClose();
                 }
-                 setItem(item);
-                 setKey(key);
               }}
             >
-              <RemoveCircleOutlineIcon />
+              <RemoveCircleOutline />
             </IconButton>
           </MenuItem>
         ))}
       </Menu>
-      {isDelete ? (
-        <InfoModal
-        uid={uid}
-          setIsDelete={setIsDelete}
-          item={item}
-          index={key}
+        <PreDeleteDialog
+        handleAction={handleDelete}
+        trigger={openDialog}
+        triggerSetter={setOpenDialog}
+        title="валюту"
         />
-      ) : null}
     </div>
   );
 }

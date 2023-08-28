@@ -1,10 +1,9 @@
-import * as React from "react";
+import { useState } from "react";
 import { Button, Modal, Box, MenuItem, TextField } from "@mui/material";
-import { addCurrency, setCurrentCurrency } from "../../firebase/database";
-import { useDispatch } from "react-redux";
+
 const style = {
   display: "flex",
-  "flexDirection": "column",
+  flexDirection: "column",
   position: "absolute",
   top: "50%",
   left: "50%",
@@ -18,21 +17,24 @@ const style = {
   pb: 3,
 };
 
-export default function AddCurrencyModal(props) {
-  const dispatch = useDispatch();
-  const { uid } = props;
-  const [open, setOpen] = React.useState(false);
+export default function AddSomeDataWithOneInput(props) {
+  const { triggerName, title, handleSubmit, placeholder, svg, inputType } = props;
+
+  const [open, setOpen] = useState(false);
   const handleOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
   };
-  const [currencyName = "", setCurrencyName] = React.useState();
+  const [inputData = "", setInputData] = useState();
 
   return (
-    <React.Fragment>
-      <MenuItem onClick={handleOpen}>Добавить валюту</MenuItem>
+    <>
+      <MenuItem onClick={handleOpen}>
+        {svg ? svg : null}
+        {triggerName}
+      </MenuItem>
       <Modal
         open={open}
         onClose={handleClose}
@@ -40,21 +42,21 @@ export default function AddCurrencyModal(props) {
         aria-describedby="child-modal-description"
       >
         <Box sx={{ ...style, width: "33%" }}>
-          <h2 id="child-modal-title">Добавление валюты</h2>
+          <h2 id="child-modal-title">{title}</h2>
           <TextField
-            label="Наименование"
+            label={placeholder}
+            type={inputType}
             margin="normal"
             variant="outlined"
-            value={currencyName}
+            value={inputData}
             color="success"
-            onChange={(e) => setCurrencyName(e.target.value)}
+            onChange={(e) => setInputData(e.target.value)}
             sx={{ "&:blur": { border: "1px solid green" }, width: "33%" }}
           ></TextField>
           <Button
             onClick={async () => {
-              await addCurrency(uid, currencyName);
-              await dispatch({type:"ADD_CURRENCY", payload: currencyName});
-              await handleClose();
+              handleSubmit(inputData);
+              handleClose();
             }}
             color="success"
             variant="contained"
@@ -63,6 +65,6 @@ export default function AddCurrencyModal(props) {
           </Button>
         </Box>
       </Modal>
-    </React.Fragment>
+    </>
   );
 }

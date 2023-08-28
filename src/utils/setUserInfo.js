@@ -13,7 +13,7 @@ export const setUserInfo = async () => {
       currency = answer;
     });
     await getAccounts(uid).then((answer) => {
-      accounts = answer.accounts;
+      accounts = answer;
     })
     resolve({
       userInfo: user,

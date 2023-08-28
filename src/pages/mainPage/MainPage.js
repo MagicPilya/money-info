@@ -35,10 +35,12 @@ function MainPage(props) {
             currentCurrency={
               store.currentUser.user.userInfo.currentCurrency
             }
+            currentCurrencyIndex={store.currentUser.user.userInfo.currentCurrencyIndex}
             currenciesList={store.currentUser.user.currency.currencies}
             uid={store.currentUser.user.userInfo.uid}
             accounts={store.currentUser.user.accounts}
             currentAccount={store.currentUser.user.userInfo.currentAccount}
+            currentAccountIndex={store.currentUser.user.userInfo.currentAccountIndex}
           ></TopBar>
         </div>
         <div className="main">

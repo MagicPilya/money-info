@@ -3,7 +3,6 @@ import { MenuItem, Menu, Button, Fade } from "@mui/material";
 import { signAccountOut } from "../../firebase/auth";
 import Currency from "../currency/Currency";
 import AccountsList from "../accountsList/AccountsList";
-import AddCurrencyModal from "../../modal/addCurrency/AddCurrencyModal";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function TopBar(props) {
@@ -11,10 +10,12 @@ function TopBar(props) {
     name,
     totalMoney,
     currentCurrency,
+    currentCurrencyIndex,
     uid,
     currenciesList,
     accounts,
     currentAccount,
+    currentAccountIndex,
   } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -66,6 +67,7 @@ function TopBar(props) {
           totalMoney={totalMoney}
           currentCurrency={currentCurrency}
           currenciesList={currenciesList}
+          currentCurrencyIndex={currentCurrencyIndex}
         />
       </div>
       <div className="topBar__account">
@@ -74,6 +76,7 @@ function TopBar(props) {
           currentAccount={currentAccount}
           accounts={accounts}
           currenciesList={currenciesList}
+          currentAccountIndex={currentAccountIndex}
         />
       </div>
     </div>
