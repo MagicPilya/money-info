@@ -21,6 +21,7 @@ import {
 import AddSomeDataWithOneInput from "../../modal/addSomeDataWithOneInput/AddSomeDataWithOneInput";
 import AddAccountModal from "../../modal/addAccount/AddAccountModal";
 import PreDeleteDialog from "../../modal/info/PreDeleteDialog";
+import OperationsModal from "../../modal/operations/OperationsModal";
 
 export default function AccountsList(props) {
   const { accounts, currentAccount, uid, currenciesList, currentAccountIndex } =
@@ -30,8 +31,10 @@ export default function AccountsList(props) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorElSettings, setAnchorElSettings] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openOperations, setOpenOperations] = useState(false);
   const open = Boolean(anchorEl);
   const openSettings = Boolean(anchorElSettings);
+
   const handleClick = (event, setter) => {
     setter(event.currentTarget);
   };
@@ -212,7 +215,9 @@ export default function AccountsList(props) {
           svg={<Percent color="warning" sx={iconsStyle} />}
           inputType="number"
         ></AddSomeDataWithOneInput>
-        <MenuItem>
+        <MenuItem onClick={()=> {
+          setOpenOperations(true);
+          }}>
           <Timeline sx={iconsStyle} /> Добавить операцию
         </MenuItem>
         <MenuItem onClick={() => setOpenDialog(true)}>
@@ -224,6 +229,10 @@ export default function AccountsList(props) {
         trigger={openDialog}
         triggerSetter={setOpenDialog}
         title="счёт"
+      />
+      <OperationsModal
+      open={openOperations}
+      setOpen={setOpenOperations}
       />
     </div>
   );

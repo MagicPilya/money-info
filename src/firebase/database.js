@@ -151,3 +151,41 @@ export const setCurrentCurrencyIndex = async (userId, index) => {
     currentCurrencyIndex: index,
   });
 }
+
+export const getCosts = async (userID) => {
+  return new Promise((resolve, reject) => {
+    setPath(userID).then(async (answer) => {
+      let finalArray = [];
+      for (let i = 0; i > -1; i++) {
+        let docRef = doc(db, "categories", answer, "costs", `${i}`);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          finalArray.push(docSnap.data());
+        } else {
+          break;
+        }
+      }
+      resolve(finalArray);
+    });
+  });
+};
+
+export const getRetrievings = async (userID) => {
+  return new Promise((resolve, reject) => {
+    setPath(userID).then(async (answer) => {
+      let finalArray = [];
+      for (let i = 0; i > -1; i++) {
+        let docRef = doc(db, "categories", answer, "retrievings", `${i}`);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          finalArray.push(docSnap.data());
+        } else {
+          break;
+        }
+      }
+      resolve(finalArray);
+    });
+  });
+};
+
+

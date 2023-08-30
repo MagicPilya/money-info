@@ -1,1 +1,51 @@
 @import url(./addAccount/addAccountModal.scss);
+
+.operations {
+  padding-left: 15px;
+  padding-top: 15px;
+  width: 100vw;
+  height: 100vh;
+  background-color: white;
+  &__header {
+    &-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      &-accountInfo {
+        font-size: 25px;
+        font-weight: 500;
+      }
+    }
+  }
+  &__workBox {
+    display: flex;
+    margin: 0;
+    padding: 25px;
+  }
+  &__costs {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    &-form {
+      width: fit-content;
+      border: 1px solid green;
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      &-input {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+      }
+    }
+  }
+}
