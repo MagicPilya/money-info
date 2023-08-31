@@ -7,8 +7,6 @@ import RegistrationPage from "../pages/authPages/registrationPage/RegistrationPa
 import "./App.scss";
 // import { connect } from "react-redux";
 const App = () => {
-  const [email = "", setEmail] = useState();
-  const [password = "", setPassword] = useState();
   const [user, setUser] = useState();
 
   useEffect(()=> {
@@ -20,21 +18,13 @@ const App = () => {
       <Route
         path="/"
         element={<MainPage
-          setEmail={setEmail}
-          setPassword={setPassword}
           setUser={setUser} />}
       />
       <Route
         path="/sign-in"
         element={
           <LoginPage
-            
-            
-            email={email}
-            password={password}
             user={user}
-            setEmail={setEmail}
-            setPassword={setPassword}
             setUser={setUser}
           />
         }
@@ -43,10 +33,6 @@ const App = () => {
         path="/sign-up"
         element={
           <RegistrationPage
-            email={email}
-            setEmail={setEmail}
-            password={password}
-            setPassword={setPassword}
           />
         }
       />

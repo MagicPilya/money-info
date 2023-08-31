@@ -1,24 +1,60 @@
 import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { Modal, Typography, Box, Fade } from "@mui/material";
+import { Modal, Typography, Box, Fade, Button, Menu } from "@mui/material";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import Operations from "../../components/operations/Operations";
-import { connect } from "react-redux";
+import {connect, useDispatch} from "react-redux";
 
 import { findDataOfAccount } from "../../utils/arraysOperations";
+import * as React from "react";
+import {setCurrentAccount} from "../../firebase/database";
 
 function OperationsModal(props) {
   const { open, setOpen } = props;
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [operation, setOperation] = useState('');
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
-  const [operation, setOperation] = useState("");
+  const dispatch = useDispatch();
+
+  const openAccountsMenu = Boolean(anchorEl);
 
   const user = props.store.currentUser.user;
   const currentAccount = user.userInfo.currentAccount;
   const accounts = user.accounts;
-
+  const uid = user.userInfo.uid;
   const currencyOfCurrentAccount = findDataOfAccount(accounts, currentAccount, "currency");
   const totalMoneyOfCurrentAccount = findDataOfAccount(accounts, currentAccount, "totalMoney");
+
+  const handleUpdateCurrentAccount =  async (name) => {
+    const index = getAccountIndex(name);
+    await setCurrentAccount(uid, name, index);
+    await dispatch({
+      type: "SET_ACTIVE_ACCOUNT",
+      payload: {
+        name: name,
+        index: index,
+      },
+    });
+    await handleClose(setAnchorEl);
+  }
+
+  function getAccountIndex(accountName) {
+    let index = null;
+    accounts.map((item, i) => {
+      if (item.name === accountName) {
+        index = i;
+      }
+    });
+    return index;
+  }
 
   return (
     <>
@@ -56,6 +92,14 @@ function OperationsModal(props) {
                 а затем, заполните необходимые данные, в соответсвие с выбранной
                 операцией
               </Typography>
+              <Typography
+                  id="layout-modal-description"
+                  level="h4"
+                  sx={{ marginLeft: "15px" }}
+              >
+                P.S.
+                <code>Операции применяются к текущему счёту, и в соответсвующей валюте, указанной в счёте</code>
+              </Typography>
               <div className="operations__header-info">
                 <div className="operations__header-info-selection">
                   <FormControl sx={{ marginTop: "15px" }}>
@@ -81,6 +125,39 @@ function OperationsModal(props) {
                 </div>
                 <div className="operations__header-info-accountInfo">
                   {`Текущий счёт: ${currentAccount}, ${totalMoneyOfCurrentAccount}, ${currencyOfCurrentAccount}`}
+                </div>
+                <div className="operations__header-info-changeAccount">
+                  <Button
+                      id="operations__header-info-changeAccount-button"
+                      aria-controls={openAccountsMenu ? 'operations__header-info-changeAccount-menu' : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={openAccountsMenu ? 'true' : undefined}
+                      onClick={handleClick}
+                      color="success"
+                      sx={{fontSize: "20px"}}
+                  >
+                    Сменить
+                    <ExpandMoreIcon/>
+                  </Button>
+                  <Menu
+                      id="operations__header-info-changeAccount-menu"
+                      MenuListProps={{
+                        "aria-labelledby": "operations__header-info-changeAccount-button",
+                      }}
+                      anchorEl={anchorEl}
+                      open={openAccountsMenu}
+                      onClose={handleClose}
+                      TransitionComponent={Fade}
+                  >
+                    {accounts.map((item, key) => (
+                        <MenuItem
+                            key={key}
+                            value={item.name}
+                            onClick={() => handleUpdateCurrentAccount(item.name)}
+                        >{item.name}
+                        </MenuItem>
+                    ))}
+                  </Menu>
                 </div>
               </div>
 

@@ -12,6 +12,7 @@ function Operations(props) {
   const categories = user.categories;
   const costs = categories.costs;
   const retrievings = categories.retrievings;
+  const creditors = user.creditors;
 
   switch (operationName) {
     case "Cost":
@@ -26,7 +27,7 @@ function Operations(props) {
     case "Transfer":
       return <Transfers />;
     case "Debt":
-      return <Debts />;
+      return <Debts creditors={creditors} />;
     default:
       return (
         <Skeleton

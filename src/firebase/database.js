@@ -188,4 +188,18 @@ export const getRetrievings = async (userID) => {
   });
 };
 
+export const getCreditors = async (userID) => {
+  return new Promise((resolve, reject) => {
+    setPath(userID).then(async (answer) => {
+      const docRef = doc(db, "creditors", answer);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        resolve(docSnap.data());
+      } else {
+        console.log("No such document!");
+      }
+    });
+  });
+};
+
 

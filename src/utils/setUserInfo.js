@@ -1,11 +1,12 @@
-import { getUser, getCurrencies, getAccounts, getCosts, getRetrievings } from "../firebase/database";
+import { getUser, getCurrencies, getAccounts, getCosts, getRetrievings, getCreditors } from "../firebase/database";
 
 export const setUserInfo = async () => {
   return new Promise(async (resolve, reject) => {
     let user = "",
-      currency = "",
-      accounts = "",
-      categories = {};
+        currency = "",
+        accounts = "",
+        categories = {},
+        creditors = "";
       const uid = localStorage.getItem("user");
     await getUser(uid).then((answer) => {
       user = answer;
@@ -22,11 +23,15 @@ export const setUserInfo = async () => {
     await getRetrievings(uid).then((answer) => {
       categories.retrievings = answer;
     });
+    await getCreditors(uid).then((answer) => {
+      creditors = answer;
+    })
     resolve({
       userInfo: user,
       currency,
       accounts,
-      categories
+      categories,
+      creditors
     });
   });
 };
