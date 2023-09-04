@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { signUp } from "../../../firebase/auth";
 import { addUser } from "../../../firebase/database";
 import { useNavigate } from "react-router";
@@ -14,62 +14,102 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {useInput} from "../../../hooks/useInput";
+import {Alert} from "@mui/material";
+
+const inputStyle = {
+  "width": "300px"
+}
 
 export default function LoginPage() {
   const [showPassword = false, toggleShowPassword] = useState();
-  const [errorMessage = "", setErrorMessage] = useState();
   const navigate = useNavigate();
+  const email = useInput('', {isEmpty: true, isEmail: true});
+  const password = useInput('', {isEmpty: true, minLength: 6});
+  const name = useInput('', {isEmpty: true, minLength: 2, maxLength: 10});
 
-  const email = useInput('', {isEmpty: true, minLength: 3, isEmail: true});
-  const password = useInput('', {isEmpty: true, minLength: 5, maxLength: 10});
-  const name = useInput('', {isEmpty: true, minLength: 2});
+  const [firebaseError, setFirebaseError] = useState(false);
+  const [errorName, setErrorName] = useState('');
+  const [newErrorName, setNewErrorName] = useState('');
+
+  useEffect(() => {
+    setTimeout( () => {
+      setFirebaseError(false);
+    }, 3000)
+  }, [firebaseError]);
+
+  useEffect ( () => {
+    switch (errorName) {
+      case "auth/email-already-in-use": {
+        setNewErrorName("Email-адрес уже зарегистрирован");
+      }
+    }
+  }, [errorName])
   return (
     <div className="auth">
       <div className="registration">
         <div className="registration__logo"></div>
         <form onSubmit={e => e.preventDefault()}>
+          {firebaseError ? <Alert severity="error" variant="filled" >{newErrorName}</Alert> : undefined}
         <div className="registration__info">
-          {(name.isDirty && name.isEmpty) && <div style={{color: "red"}}>Поле не может быть пустым</div>}
-          {(name.isDirty && name.minLengthError) && <div style={{color: "red"}}>Поле должно содержать не менее 2 символа</div>}
+          {((name.isDirty) && (
+              name.isEmpty ||
+              name.maxLengthError ||
+              name.minLengthError)) && (
+              <Alert
+                sx={inputStyle}
+                severity="warning"
+                variant="filled">{name.textError}
+              </Alert>)}
           <TextField
-            id="outlined-basic"
+          id="outlined-basic"
             type="text"
-            label="Name"
+            label="Имя"
             margin="normal"
             variant="outlined"
             value={name.value}
             color="success"
             onChange={name.onChange}
             onBlur={name.onBlur}
-            sx={{ "&:blur": { border: "1px solid green" } }}
+            sx={ {...inputStyle, "&:blur": { border: "1px solid green" } }}
           />
-          {(email.isDirty && email.isEmpty) && <div style={{color: "red"}}>Поле не может быть пустым</div>}
-          {(email.isDirty && email.minLengthError) && <div style={{color: "red"}}>Поле должно содержать не менее 3 символа</div>}
-          {(email.isDirty && email.emailError) && <div style={{color: "red"}}>Не правильный email</div>}
+          {((email.isDirty) && (
+              email.isEmpty ||
+              email.emailError)) && (
+              <Alert
+                  sx={inputStyle}
+                  severity="warning"
+                  variant="filled">{email.textError}
+              </Alert>)}
           <TextField
             id="outlined-basic"
             type="email"
             label="Email"
             margin="normal"
             variant="outlined"
-            value={email.value}
+            value={email.value.toLowerCase()}
             color="success"
             onChange={email.onChange}
             onBlur={email.onBlur}
-            sx={{ "&:blur": { border: "1px solid green" } }}
+            sx={{...inputStyle, "&:blur": { border: "1px solid green" } }}
           />
-          {(password.isDirty && password.isEmpty) && <div style={{color: "red"}}>Поле не может быть пустым</div>}
-          {(password.isDirty && password.minLengthError) && <div style={{color: "red"}}>Поле должно содержать не менее 5 символов</div>}
-          {(password.isDirty && password.maxLengthError) && <div style={{color: "red"}}>Поле должно содержать не более 10 символов</div>}
+          {((password.isDirty) && (
+              password.isEmpty ||
+              password.minLengthError)) && (
+              <Alert
+                  sx={inputStyle}
+                  severity="warning"
+                  variant="filled">{password.textError}
+              </Alert>)}
           <FormControl
             variant="outlined"
             margin="normal"
+            sx={inputStyle}
           >
             <InputLabel
               htmlFor="outlined-adornment-password"
               color="success"
             >
-              Password
+              Пароль
             </InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
@@ -92,7 +132,7 @@ export default function LoginPage() {
                   </IconButton>
                 </InputAdornment>
               }
-              label="Password"
+              label="Пароль"
             />
           </FormControl>
         </div>
@@ -108,17 +148,21 @@ export default function LoginPage() {
             "&:hover": { border: "1px solid green" },
           }}
           onClick={async () => {
-            await signUp(email, password).then(async (answer) => {
-              await addUser(name, email, answer.user.uid);
+            await signUp(email.value, password.value).then(async (answer) => {
+              await addUser(name.value, email.value, answer.user.uid);
               localStorage.setItem("user", answer.user.uid);
               await navigate("/");
-            });
+            })
+              .catch(error => {
+                setErrorName(error);
+                setFirebaseError(true);
+              });
           }}
         >
           Зарегистрироваться
         </Button>
         <div className="registration__sign-in">
-          Уже зарегестрированы?
+          Уже зарегистрированы?
           <Link
             href="/sign-in"
             underline="hover"

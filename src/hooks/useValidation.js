@@ -7,6 +7,7 @@ export const useValidation = (value, validations) => {
   const [maxLengthError, setMaxLengthError] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [inputValid, setInputValid] = useState(false);
+  const [textError, setTextError] = useState('');
 
   useEffect(() => {
   for (const validation in validations) {
@@ -26,7 +27,7 @@ export const useValidation = (value, validations) => {
         break;
     }
   }
-  },[value])
+  },[value, textError])
 
   useEffect(() => {
   if (isEmpty || maxLengthError || minLengthError || emailError) {
@@ -34,12 +35,26 @@ export const useValidation = (value, validations) => {
   } else {
     setInputValid(true);
   }
-  }, [isEmpty, maxLengthError, minLengthError, emailError])
+  }, [textError,isEmpty, maxLengthError, minLengthError, emailError]);
+
+  useEffect( () => {
+    if (isEmpty) {
+      setTextError("Поле не должно быть пустым");
+    } else if (maxLengthError) {
+      setTextError("Достигнута максимальная длина символов");
+    } else if (minLengthError) {
+      setTextError('Условие минимального количества символов не удовлетворено')
+    } else if (emailError) {
+      setTextError("Не правильный email")
+    }
+  }, [textError, isEmpty, maxLengthError, minLengthError, emailError]);
+
   return {
     isEmpty,
     minLengthError,
     maxLengthError,
     emailError,
-    inputValid
+    inputValid,
+    textError
   }
 }
