@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 
 import AddCardIcon from '@mui/icons-material/AddCard';
@@ -13,12 +13,13 @@ import {
   Fade,
   Modal,
   Box,
-  Backdrop,
+  Backdrop, Alert,
 } from "@mui/material";
 
 import { addAccount, addCurrency } from "../../firebase/database";
 
 import AddSomeDataWithOneInput from "../addSomeDataWithOneInput/AddSomeDataWithOneInput";
+import {useInput} from "../../hooks/useInput";
 
 const style = {
   display: "flex",
@@ -38,29 +39,30 @@ export default function AddAccountModal(props) {
   const { currenciesList, uid, accountsList } = props;
   const dispatch = useDispatch();
 
-  const [name = "", setName] = useState();
-  const [balance = 0, setBalance] = useState();
-  const [currency = "", setCurrency] = useState();
+  const name = useInput('', {isEmpty: true, minLenght: 4, maxLength: 16});
+  const balance = useInput(0, {isNegative: true, isEmpty: true});
+  const currency = useInput('', {isEmpty: true});
+  const transmittedValue = useInput('', {isEmpty: true, minLength: 2, maxLength: 8})
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   let accountInfo = {
-    totalMoney: balance,
-    currency: currency,
-    name: name,
+    totalMoney: balance.value,
+    currency: currency.value,
+    name: name.value,
   };
 
   const handleSubmitCurrency = async (currencyName) => {
       await addCurrency(uid, currencyName);
-      await dispatch({type:"ADD_CURRENCY", payload: currencyName});
+      dispatch({type: 'ADD_CURRENCY', payload: currencyName});
   }
 
-  const crearState = () => {
-    setName("");
-    setBalance("");
-    setCurrency("");
+  const clearState = () => {
+    name.setValue("");
+    balance.setValue("");
+    currency.setValue("");
   }
 
   return (
@@ -85,68 +87,96 @@ export default function AddAccountModal(props) {
         }}
       >
         <Fade in={open}>
-          <Box sx={style}>
-            <Typography id="transition-modal-title" variant="h6" component="h2">
-              Добавление счета
-            </Typography>
+          <form className="addAccountModal__form" onSubmit={e => e.preventDefault()}>
+            <Box sx={style}>
+              <Typography id="transition-modal-title" variant="h6" component="h2">
+                Добавление счета
+              </Typography>
+              {((name.isDirty) && (
+                  name.isEmpty ||
+                  name.maxLengthError || name.minLengthError)) && (
+                  <Alert
+                      severity="warning"
+                      variant="filled">{name.textError}
+                  </Alert>)}
+              <TextField
+                  label="Название счёта"
+                  margin="normal"
+                  variant="outlined"
+                  value={name.value}
+                  color="success"
+                  onChange={name.onChange}
+                  onBlur={name.onBlur}
+                  sx={{ "&:blur": { border: "1px solid green" } }}
+              ></TextField>
 
-            <TextField
-              label="Название счёта"
-              margin="normal"
-              variant="outlined"
-              value={name}
-              color="success"
-              onChange={(e) => setName(e.target.value)}
-              sx={{ "&:blur": { border: "1px solid green" } }}
-            ></TextField>
-            <TextField
-              type="number"
-              label="Баланс"
-              margin="normal"
-              variant="outlined"
-              value={balance}
-              color="success"
-              onChange={(e) => setBalance(e.target.value)}
-              sx={{ "&:blur": { border: "1px solid green" } }}
-            ></TextField>
-            <FormControl margin="normal" sx={{ width: "53%" }}>
-              <InputLabel id="demo-simple-select-label">
-                Валюта счета
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={currency}
-                label="Валюта счёта"
-                onChange={(e) => setCurrency(e.target.value)}
+              {((balance.isDirty) &&
+                  (balance.isNegative || balance.isEmpty))
+                   && (
+                  <Alert
+                      severity="warning"
+                      variant="filled">{balance.textError}
+                  </Alert>)}
+              <TextField
+                  type="number"
+                  label="Баланс"
+                  margin="normal"
+                  variant="outlined"
+                  value={balance.value}
+                  color="success"
+                  onChange={balance.onChange}
+                  onBlur={balance.onBlur}
+                  sx={{ "&:blur": { border: "1px solid green" } }}
+              ></TextField>
+              {((currency.isDirty) && (
+                  currency.isEmpty) && (
+                  <Alert
+                      severity="warning"
+                      variant="filled">{currency.textError}
+                  </Alert>))}
+              <FormControl margin="normal" sx={{ width: "53%" }}>
+                <InputLabel id="demo-simple-select-label">
+                  Валюта счета
+                </InputLabel>
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={currency.value}
+                    label="Валюта счёта"
+                    onChange={currency.onChange}
+                    onBlur={currency.onBlur}
+                >
+                  {currenciesList.map((item, key) => (
+                      <MenuItem value={item} key={key} onClick={() => {}}>
+                        {item}
+                      </MenuItem>
+                  ))}
+
+                  <AddSomeDataWithOneInput
+                      transmittedValue={transmittedValue}
+                      triggerName="Добавить валюту"
+                      title="Добавление валюты"
+                      handleSubmit={handleSubmitCurrency}
+                      placeholder="Валюта"
+                  />
+                </Select>
+              </FormControl>
+              <Button
+                  disabled={ !name.inputValid ||!balance.inputValid || !currency.inputValid }
+                  type="submit"
+                  onClick={async () => {
+                    dispatch({ type: 'ADD_ACCOUNT', payload: accountInfo });
+                    await addAccount(uid, accountInfo, accountsList.length);
+                    await clearState();
+                    await handleClose();
+                  }}
+                  variant="contained"
+                  color="success"
               >
-                {currenciesList.map((item, key) => (
-                  <MenuItem value={item} key={key} onClick={() => {}}>
-                    {item}
-                  </MenuItem>
-                ))}
-
-                <AddSomeDataWithOneInput
-                  triggerName="Добавить валюту"
-                  title="Добавление валюты"
-                  handleSubmit={handleSubmitCurrency}
-                  placeholder="Валюта"
-                />
-              </Select>
-            </FormControl>
-            <Button
-              onClick={async () => {
-                await dispatch({ type: "ADD_ACCOUNT", payload: accountInfo });
-                await addAccount(uid, accountInfo, accountsList.length);
-                await crearState();
-                await handleClose();
-              }}
-              variant="contained"
-              color="success"
-            >
-              Принять
-            </Button>
-          </Box>
+                Принять
+              </Button>
+            </Box>
+          </form>
         </Fade>
       </Modal>
     </div>

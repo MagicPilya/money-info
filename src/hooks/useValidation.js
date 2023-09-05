@@ -8,6 +8,8 @@ export const useValidation = (value, validations) => {
   const [emailError, setEmailError] = useState(false);
   const [inputValid, setInputValid] = useState(false);
   const [textError, setTextError] = useState('');
+  const [isNegative, setNegative] = useState(false);
+  const [isNull, setNull] = useState(false);
 
   useEffect(() => {
   for (const validation in validations) {
@@ -25,17 +27,23 @@ export const useValidation = (value, validations) => {
         const filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
         filter.test(String(value).toLowerCase()) ? setEmailError(false) : setEmailError(true);
         break;
+      case 'isNull':
+        (value === 0) ? setNull(true) : setNull(false);
+        break;
+      case 'isNegative':
+        (value < 0) ? setNegative(true) : setNegative(false);
+      break;
     }
   }
   },[value, textError])
 
   useEffect(() => {
-  if (isEmpty || maxLengthError || minLengthError || emailError) {
+  if (isEmpty || maxLengthError || minLengthError || emailError || isNull || isNegative) {
     setInputValid(false);
   } else {
     setInputValid(true);
   }
-  }, [textError,isEmpty, maxLengthError, minLengthError, emailError]);
+  }, [textError,isEmpty, maxLengthError, minLengthError, emailError, isNull, isNegative]);
 
   useEffect( () => {
     if (isEmpty) {
@@ -43,11 +51,15 @@ export const useValidation = (value, validations) => {
     } else if (maxLengthError) {
       setTextError("Достигнута максимальная длина символов");
     } else if (minLengthError) {
-      setTextError('Условие минимального количества символов не удовлетворено')
+      setTextError('Условие минимального количества символов не удовлетворено');
     } else if (emailError) {
-      setTextError("Не правильный email")
+      setTextError("Не правильный email");
+    } else if (isNegative) {
+      setTextError("Число в поле не может быть отрицательным");
+    } else if (isNull) {
+      setTextError("Число не должно равняться нулю");
     }
-  }, [textError, isEmpty, maxLengthError, minLengthError, emailError]);
+  }, [textError, isEmpty, maxLengthError, minLengthError, emailError, isNegative, isNull]);
 
   return {
     isEmpty,
@@ -55,6 +67,8 @@ export const useValidation = (value, validations) => {
     maxLengthError,
     emailError,
     inputValid,
-    textError
+    textError,
+    isNegative,
+    isNull,
   }
 }

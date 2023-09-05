@@ -22,6 +22,7 @@ import AddSomeDataWithOneInput from "../../modal/addSomeDataWithOneInput/AddSome
 import AddAccountModal from "../../modal/addAccount/AddAccountModal";
 import PreDeleteDialog from "../../modal/info/PreDeleteDialog";
 import OperationsModal from "../../modal/operations/OperationsModal";
+import {useInput} from "../../hooks/useInput";
 
 export default function AccountsList(props) {
   const { accounts, currentAccount, uid, currenciesList, currentAccountIndex } =
@@ -34,6 +35,8 @@ export default function AccountsList(props) {
   const [openOperations, setOpenOperations] = useState(false);
   const open = Boolean(anchorEl);
   const openSettings = Boolean(anchorElSettings);
+  const transmittedValueRename = useInput('', {isEmpty: true, maxLength: 16, minLength: 4});
+  const transmittedValueCorrect = useInput('', {isEmpty: true, isNegative: true});
 
   const handleClick = (event, setter) => {
     setter(event.currentTarget);
@@ -49,8 +52,8 @@ export default function AccountsList(props) {
   const handleActiveAccount = async (name) => {
     const index = getAccountIndex(name);
     await setCurrentAccount(uid, name, index);
-    await dispatch({
-      type: "SET_ACTIVE_ACCOUNT",
+    dispatch({
+      type: 'SET_ACTIVE_ACCOUNT',
       payload: {
         name: name,
         index: index,
@@ -62,21 +65,21 @@ export default function AccountsList(props) {
   const handleSubmitRename = async (newName) => {
     const index = getAccountIndex(currentAccount);
     await renameAccount(uid, index, newName);
-    await dispatch({
-      type: "RENAME_ACCOUNT",
+    dispatch({
+      type: 'RENAME_ACCOUNT',
       payload: { index: index, name: newName },
     });
 
-    await dispatch({
-      type: "SET_ACTIVE_ACCOUNT",
+    dispatch({
+      type: 'SET_ACTIVE_ACCOUNT',
       payload: { name: newName, index: getAccountIndex(currentAccount) },
     });
   };
 
   const handleSubmitCorrect = async (newBalance) => {
     await correctBalance(uid, currentAccountIndex, newBalance);
-    await dispatch({
-      type: "CORRECT_ACCOUNT_BALANCE",
+     dispatch({
+      type: 'CORRECT_ACCOUNT_BALANCE',
       payload: { newBalance: newBalance, index: currentAccountIndex },
     });
   };
@@ -201,6 +204,7 @@ export default function AccountsList(props) {
         TransitionComponent={Fade}
       >
         <AddSomeDataWithOneInput
+          transmittedValue={transmittedValueRename}
           triggerName="Сменить название счёта"
           title="Изменение названия счета"
           handleSubmit={handleSubmitRename}
@@ -208,6 +212,7 @@ export default function AccountsList(props) {
           svg={<Abc sx={iconsStyle} />}
         ></AddSomeDataWithOneInput>
         <AddSomeDataWithOneInput
+          transmittedValue={transmittedValueCorrect}
           triggerName="Скорректировать остатки по счёту"
           title="Коррекция остатков"
           handleSubmit={handleSubmitCorrect}
@@ -220,7 +225,10 @@ export default function AccountsList(props) {
           }}>
           <Timeline sx={iconsStyle} /> Добавить операцию
         </MenuItem>
-        <MenuItem onClick={() => setOpenDialog(true)}>
+        <MenuItem onClick={() => {
+          setOpenDialog(true);
+          handleClose(setAnchorElSettings);
+        }}>
           <CreditCardOff sx={iconsStyle} color="error" /> Удалить счёт
         </MenuItem>
       </Menu>
