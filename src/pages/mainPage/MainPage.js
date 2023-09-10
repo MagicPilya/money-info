@@ -1,10 +1,21 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import useProtectedRoute from "../../hooks/useProtectedRoute";
-import { useDispatch } from "react-redux";
-import { connect } from "react-redux";
-import { Skeleton } from "@mui/material";
+import {useDispatch} from "react-redux";
+import {connect} from "react-redux";
+import {
+  Paper,
+  Skeleton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography
+} from "@mui/material";
 import TopBar from "../../components/topBar/TopBar";
-import { setUserInfo } from "../../utils/setUserInfo";
+import {setUserInfo} from "../../utils/setUserInfo";
+import OperationCard from "../../components/operationCard/OperationCard";
 
 function MainPage(props) {
   const store = props.store;
@@ -13,7 +24,7 @@ function MainPage(props) {
 
   useEffect(() => {
     setUserInfo().then(async (answer) => {
-      await dispatch({ type: "SET_CURRENT_USER", payload: answer });
+      await dispatch({type: "SET_CURRENT_USER", payload: answer});
       await setLoading(false);
     });
   }, [loading]);
@@ -22,7 +33,7 @@ function MainPage(props) {
   if (loading) {
     return (
       <>
-        <Skeleton variant="rectangular" width={210} height={60} />
+        <Skeleton variant="rectangular" width={210} height={60}/>
       </>
     );
   } else if (!loading) {
@@ -43,7 +54,16 @@ function MainPage(props) {
             currentAccountIndex={store.currentUser.user.userInfo.currentAccountIndex}
           ></TopBar>
         </div>
-        <div className="main">
+        <div className="mainPage__workBox">
+          <div className="mainPage__workBox-title">
+            <Typography variant="h2" gutterBottom component="h2">
+              Последние операции
+            </Typography>
+          </div>
+          <div className="mainPage__workBox-table">
+            <OperationCard></OperationCard>
+          </div>
+
         </div>
       </div>
 
@@ -51,4 +71,4 @@ function MainPage(props) {
   }
 }
 
-export default connect((state) => ({ store: state }))(MainPage);
+export default connect((state) => ({store: state}))(MainPage);

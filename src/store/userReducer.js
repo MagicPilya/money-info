@@ -24,9 +24,10 @@ const userReducer = createReducer({}, (builder) => {
     .addCase("DELETE_CURRENCY", (state, action) => {
       const currency = action.payload;
       state.user.currency.currencies.map( (item, key) => {
-        if (currency == item) {
+        if (currency === item) {
           state.user.currency.currencies.splice(key, 1);
         }
+        return null;
       })
     })
     .addCase("RENAME_ACCOUNT", (state, action) => {
@@ -44,9 +45,16 @@ const userReducer = createReducer({}, (builder) => {
       state.user.accounts[index].totalMoney = newBalance;
     })
     .addCase("SET_ACTIVE_CURRENCY_INDEX", (state, action) => {
-      const newIndex = action.payload;
-      state.user.userInfo.currentCurrencyIndex = newIndex;
+      state.user.userInfo.currentCurrencyIndex = action.payload;
     })
+    .addCase("INCREASE_ACCOUNT_MONEY", (state, action) => {
+      const currentAccount = state.user.userInfo.currentAccountIndex;
+      state.user.accounts[currentAccount].totalMoney += action.payload;
+    })
+    .addCase("DECREASE_ACCOUNT_MONEY", (state, action) => {
+      const currentAccount = state.user.userInfo.currentAccountIndex;
+      state.user.accounts[currentAccount].totalMoney -= action.payload;
+    });
 
 })
 

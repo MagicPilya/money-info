@@ -6,7 +6,7 @@ import Debts from "./Debts";
 import { connect } from "react-redux";
 
 function Operations(props) {
-  const { operationName } = props;
+  const { operationName, setCloseModal, uid, currentAccountIndex, oldValueOfTotalMoney } = props;
   const user = props.store.currentUser.user;
   const currentAccount = user.userInfo.currentAccount;
   const categories = user.categories;
@@ -16,7 +16,15 @@ function Operations(props) {
 
   switch (operationName) {
     case "Cost":
-      return <Costs costs={costs} currentAccount={currentAccount} />;
+      return <Costs
+        costs={costs}
+        currentAccount={currentAccount}
+        setCloseModal={setCloseModal}
+        uid={uid}
+        currentAccountIndex={currentAccountIndex}
+        oldValueOfTotalMoney={oldValueOfTotalMoney}
+
+      />;
     case "Retrieving":
       return (
         <Retrievings

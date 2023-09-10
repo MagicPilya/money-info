@@ -88,6 +88,24 @@ export const getAccounts = async (userID) => {
   });
 };
 
+export const getOperations = async (userID) => {
+  return new Promise((resolve, reject) => {
+    setPath(userID).then(async (answer) => {
+      let finalArray = [];
+      for (let i = 0; i > -1; i++) {
+        let docRef = doc(db, "operations", answer, "operations", `${i}`);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          finalArray.push(docSnap.data());
+        } else {
+          break;
+        }
+      }
+      resolve(finalArray);
+    });
+  });
+};
+
 export const setCurrentCurrency = async (userId, currentCurrency) => {
   const docRef = doc(db, "users", userId);
   await updateDoc(docRef, {
@@ -201,5 +219,11 @@ export const getCreditors = async (userID) => {
     });
   });
 };
-
+export const decreaseAccountMoney = async (userId, index, oldValue, increaser) => {
+  const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
+  const newValue = oldValue - increaser;
+  await updateDoc(docRef, {
+    totalMoney: newValue
+  });
+};
 
