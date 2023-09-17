@@ -133,7 +133,7 @@ export const addAccount = async (userId, account, id) => {
   await setDoc(docRef, {
     name: account.name,
     currency: account.currency,
-    totalMoney: account.totalMoney
+    totalMoney: Number(account.totalMoney)
   });
 };
 
@@ -159,7 +159,7 @@ export const deleteAccount = async (userId, index) => {
 export const correctBalance = async (userId, index, newBalance) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
   await updateDoc(docRef, {
-    totalMoney: newBalance,
+    totalMoney: Number(newBalance),
   });
 }
 
@@ -219,9 +219,16 @@ export const getCreditors = async (userID) => {
     });
   });
 };
-export const decreaseAccountMoney = async (userId, index, oldValue, increaser) => {
+export const decreaseAccountMoney = async (userId, index, oldValue, decreaser) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
-  const newValue = oldValue - increaser;
+  const newValue = oldValue - decreaser;
+  await updateDoc(docRef, {
+    totalMoney: newValue
+  });
+};
+export const increaseAccountMoney = async (userId, index, oldValue, increaser) => {
+  const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
+  const newValue = +oldValue + +increaser;
   await updateDoc(docRef, {
     totalMoney: newValue
   });

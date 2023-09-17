@@ -49,13 +49,24 @@ const userReducer = createReducer({}, (builder) => {
     })
     .addCase("INCREASE_ACCOUNT_MONEY", (state, action) => {
       const currentAccount = state.user.userInfo.currentAccountIndex;
-      state.user.accounts[currentAccount].totalMoney += action.payload;
+      state.user.accounts[currentAccount].totalMoney += +action.payload;
     })
     .addCase("DECREASE_ACCOUNT_MONEY", (state, action) => {
       const currentAccount = state.user.userInfo.currentAccountIndex;
       state.user.accounts[currentAccount].totalMoney -= action.payload;
+    })
+    .addCase("TRANSFER_MONEY", (state, action) => {
+      const from = action.payload.from;
+      const to = action.payload.to;
+      const amount = action.payload.amount;
+      state.user.accounts.map((item, index) => {
+        if (item.name === from) {
+          state.user.accounts[index].totalMoney -= +amount;
+        } else if (item.name === to) {
+          state.user.accounts[index].totalMoney += +amount;
+        }
+      })
     });
-
 })
 
 export default userReducer;

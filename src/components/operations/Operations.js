@@ -13,6 +13,7 @@ function Operations(props) {
   const costs = categories.costs;
   const retrievings = categories.retrievings;
   const creditors = user.creditors;
+  const accounts = user.accounts;
 
   switch (operationName) {
     case "Cost":
@@ -29,13 +30,30 @@ function Operations(props) {
       return (
         <Retrievings
           retrievings={retrievings}
-          currentAccount={currentAccount}
+          setCloseModal={setCloseModal}
+          uid={uid}
+          currentAccountIndex={currentAccountIndex}
+          oldValueOfTotalMoney={oldValueOfTotalMoney}
         />
       );
     case "Transfer":
-      return <Transfers />;
+      return (
+        <Transfers
+          accounts={accounts}
+          currentAccount={currentAccount}
+          uid={uid}
+          currentAccountIndex={currentAccountIndex}
+          oldValueOfTotalMoney={oldValueOfTotalMoney}
+        />
+      );
     case "Debt":
-      return <Debts creditors={creditors} />;
+      return (
+        <Debts
+          creditors={creditors}
+          uid={uid}
+          currentAccountIndex={currentAccountIndex}
+          oldValueOfTotalMoney={oldValueOfTotalMoney}
+        />);
     default:
       return (
         <Skeleton

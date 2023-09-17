@@ -4,7 +4,7 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem, Alert,
+  MenuItem, Alert, Typography,
 } from "@mui/material";
 import {useInput} from "../../hooks/useInput";
 import React from "react";
@@ -55,6 +55,9 @@ export default function Costs(props) {
         handleSubmit();
       }}>
 
+        <Typography variant="h4" gutterBottom component="h4">
+          Добавить расход
+        </Typography>
         <div className="operations__costs-form-input">
           {((costsAmount.isDirty) && (
             costsAmount.isEmpty ||

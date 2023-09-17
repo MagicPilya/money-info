@@ -10,6 +10,7 @@ export const useValidation = (value, validations) => {
   const [textError, setTextError] = useState('');
   const [isNegative, setNegative] = useState(false);
   const [isNull, setNull] = useState(false);
+  const [maxValueError, setMaxValueError] = useState(false);
 
   useEffect(() => {
   for (const validation in validations) {
@@ -33,17 +34,19 @@ export const useValidation = (value, validations) => {
       case 'isNegative':
         (value < 0) ? setNegative(true) : setNegative(false);
       break;
+      case 'maxValue':
+        (+value > validations[validation].finalNumber && validations[validation].areYouSure) ? setMaxValueError(true) : setMaxValueError(false);
     }
   }
   },[value, textError])
 
   useEffect(() => {
-  if (isEmpty || maxLengthError || minLengthError || emailError || isNull || isNegative) {
+  if (isEmpty || maxLengthError || minLengthError || emailError || isNull || isNegative || maxValueError) {
     setInputValid(false);
   } else {
     setInputValid(true);
   }
-  }, [textError,isEmpty, maxLengthError, minLengthError, emailError, isNull, isNegative]);
+  }, [textError,isEmpty, maxLengthError, minLengthError, emailError, isNull, isNegative, maxValueError]);
 
   useEffect( () => {
     if (isEmpty) {
@@ -58,8 +61,10 @@ export const useValidation = (value, validations) => {
       setTextError("Число в поле не может быть отрицательным");
     } else if (isNull) {
       setTextError("Число не должно равняться нулю");
+    } else if (maxValueError) {
+      setTextError("Сумма не должна превышать имеющуюся сумму на счете")
     }
-  }, [textError, isEmpty, maxLengthError, minLengthError, emailError, isNegative, isNull]);
+  }, [textError, isEmpty, maxLengthError, minLengthError, emailError, isNegative, isNull, maxValueError]);
 
   return {
     isEmpty,
@@ -70,5 +75,6 @@ export const useValidation = (value, validations) => {
     textError,
     isNegative,
     isNull,
+    maxValueError,
   }
 }
