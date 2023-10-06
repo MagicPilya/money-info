@@ -1,51 +1,78 @@
 import {Alert, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import {useInput} from "../../hooks/useInput";
-import {increaseAccountMoney, decreaseAccountMoney} from "../../firebase/database";
+import {increaseAccountMoney, decreaseAccountMoney, setOperation} from "../../firebase/database";
 import {useDispatch} from "react-redux";
+import setFinalObjectFromInputs from "../../utils/setFinalObjectFromInputs";
 
 const selectStyle = {
-    "width": "350px"
+  "width": "350px"
 }
 
 const textFieldStyle = {
-    "width": "350px"
+  "width": "350px"
 }
 export default function Debts(props) {
-    const { creditors, uid,  currentAccountIndex, oldValueOfTotalMoney} = props;
-    const dispatch = useDispatch();
+  const { creditors, uid,  currentAccountIndex, oldValueOfTotalMoney, currentAccount, currentCurrency, operations} = props;
+  const dispatch = useDispatch();
 
-    const [isValid, setValid] = useState(false);
-    const typeOfDebt = useInput('', {isEmpty: true});
-    const creditorName = useInput('', {isEmpty: true});
-    const sumOfDebt = useInput('', {isEmpty: true, isNegative: true, maxValue: {finalNumber: oldValueOfTotalMoney, areYouSure: isValid}});
+  const [isValid, setValid] = useState(false);
+  const typeOfDebt = useInput('', {isEmpty: true});
+  const creditorName = useInput('', {isEmpty: true});
+  const sumOfDebt = useInput('', {isEmpty: true, isNegative: true, maxValue: {finalNumber: oldValueOfTotalMoney, areYouSure: isValid}});
+  const [operationType, setOperationType] = useState("");
+  
+  useEffect ( () => {
+    (typeOfDebt.value === "debtNegative") ? setOperationType("minus") : setOperationType("plus");
+  }, [typeOfDebt])
+  useEffect( ()=> {
+    setValid(typeOfDebt.value === "debtNegative");
+  }, [sumOfDebt])
+  
+  const handlePositive = async () => {
+    dispatch({type: "INCREASE_ACCOUNT_MONEY", payload: sumOfDebt.value});
+    await increaseAccountMoney(uid, currentAccountIndex, oldValueOfTotalMoney, sumOfDebt.value);
+  }
+  const handleNegative = async () => {
+    dispatch({type: "DECREASE_ACCOUNT_MONEY", payload: sumOfDebt.value});
+    await decreaseAccountMoney(uid, currentAccountIndex, oldValueOfTotalMoney, sumOfDebt.value);
+  }
+  const handleSetOperation = async (finalObject) => {
+    await setOperation(uid, operations.length, finalObject);
+    dispatch({type: "ADD_OPERATION", payload: finalObject});
+  }
 
-    useEffect( ()=> {
-      setValid(typeOfDebt.value === "debtNegative");
-    }, [sumOfDebt])
+  Date.prototype.today = function () {
+    return ((this.getDate() < 10)?"0":"") + this.getDate() +"/"+(((this.getMonth()+1) < 10)?"0":"") + (this.getMonth()+1) +"/"+ this.getFullYear();
+  }
+  const currentDate = new Date();
+  const dateTime = currentDate.today();
 
-    const handlePositive = async () => {
-      dispatch({type: "INCREASE_ACCOUNT_MONEY", payload: sumOfDebt.value});
-      await increaseAccountMoney(uid, currentAccountIndex, oldValueOfTotalMoney, sumOfDebt.value);
-    }
-    const handleNegative = async () => {
-      dispatch({type: "DECREASE_ACCOUNT_MONEY", payload: sumOfDebt.value});
-      await decreaseAccountMoney(uid, currentAccountIndex, oldValueOfTotalMoney, sumOfDebt.value);
-    }
   return (
 
       <div className="operations__debts">
           <form
             className="operations__debts-form"
             id="operations-debts-form"
-            noValidate="true"
+            noValidate={true}
             onSubmit={ async  (e) => {
-                e.preventDefault();
-                if (typeOfDebt.value === "debtPositive") {
-                    await handlePositive();
-                } else if (typeOfDebt.value === "debtNegative") {
-                    await handleNegative();
-                }
+              e.preventDefault();
+              if (typeOfDebt.value === "debtPositive") {
+                  await handlePositive();
+              } else if (typeOfDebt.value === "debtNegative") {
+                  await handleNegative();
+              }
+              
+              await setFinalObjectFromInputs(
+                "Долги",
+                currentAccount,
+                creditorName.value,
+                dateTime,
+                operationType,
+                sumOfDebt.value,
+                currentCurrency
+              )
+                .then(async(answer) => await handleSetOperation(answer));
             }}>
               <Typography variant="h4" gutterBottom component="h4">
                   Долговые операции
@@ -121,7 +148,7 @@ export default function Debts(props) {
               <div className="operations__debts-form-input">
                   <Button
                     type="submit"
-                    disabled={ !typeOfDebt.inputValid || !creditorName.inputValid || !sumOfDebt.inputValid}
+                    disabled= {!typeOfDebt.inputValid || !creditorName.inputValid || ( sumOfDebt.isDirty && !sumOfDebt.inputValid ) || !sumOfDebt.inputValid}
                   >Подтвердить</Button>
               </div>
           </form>

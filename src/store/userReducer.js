@@ -65,8 +65,12 @@ const userReducer = createReducer({}, (builder) => {
         } else if (item.name === to) {
           state.user.accounts[index].totalMoney += +amount;
         }
+        return undefined
       })
-    });
+    })
+    .addCase("ADD_OPERATION", (state, action) => {
+      state.user.operations.push(action.payload);
+    })
 })
 
 export default userReducer;

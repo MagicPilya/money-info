@@ -106,6 +106,11 @@ export const getOperations = async (userID) => {
   });
 };
 
+export const setOperation = async (userId, index, finalObject) => {
+  const docRef = doc(db, "operations", userId, "operations", `${index}`);
+  await setDoc(docRef, finalObject);
+}
+
 export const setCurrentCurrency = async (userId, currentCurrency) => {
   const docRef = doc(db, "users", userId);
   await updateDoc(docRef, {
@@ -233,4 +238,6 @@ export const increaseAccountMoney = async (userId, index, oldValue, increaser) =
     totalMoney: newValue
   });
 };
+
+
 

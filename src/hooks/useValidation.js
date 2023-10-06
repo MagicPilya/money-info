@@ -25,7 +25,7 @@ export const useValidation = (value, validations) => {
         value.length > validations[validation] ? setMaxLengthError(true) : setMaxLengthError(false)
         break;
       case 'isEmail':
-        const filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        const filter = /^([a-zA-Z0-9_.])+@(([a-zA-Z0-9])+\.)+([a-zA-Z0-9]{2,4})+$/;
         filter.test(String(value).toLowerCase()) ? setEmailError(false) : setEmailError(true);
         break;
       case 'isNull':
@@ -33,12 +33,15 @@ export const useValidation = (value, validations) => {
         break;
       case 'isNegative':
         (value < 0) ? setNegative(true) : setNegative(false);
-      break;
+        break;
       case 'maxValue':
         (+value > validations[validation].finalNumber && validations[validation].areYouSure) ? setMaxValueError(true) : setMaxValueError(false);
+        break;
+      default:
+        break;
     }
   }
-  },[value, textError])
+  },[value, textError, validations])
 
   useEffect(() => {
   if (isEmpty || maxLengthError || minLengthError || emailError || isNull || isNegative || maxValueError) {

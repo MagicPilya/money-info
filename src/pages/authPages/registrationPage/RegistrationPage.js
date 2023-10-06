@@ -41,7 +41,10 @@ export default function LoginPage() {
     switch (errorName) {
       case "auth/email-already-in-use": {
         setNewErrorName("Email-адрес уже зарегистрирован");
+        break;
       }
+      default:
+        return undefined
     }
   }, [errorName])
   return (

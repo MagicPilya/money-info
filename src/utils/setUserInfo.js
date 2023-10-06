@@ -36,10 +36,16 @@ export const setUserInfo = async () => {
       creditors = answer;
     })
     await getOperations(uid).then((answer) => {
+      // if (answer.length === 1) {
+      //   operations = [];
+      // } else {
+      //   operations = answer.slice(answer.length);
+      // }
       operations = answer;
     })
     resolve({
-      userInfo: user,
+      userInfo:
+      user,
       currency,
       accounts,
       categories,

@@ -42,6 +42,8 @@ export default function LoginPage(props) {
       case "auth/wrong-password":
         setNewErrorName("Неверный пароль!");
         break;
+      default:
+        break;
 
     }
   }, [errorName])

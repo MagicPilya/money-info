@@ -20,6 +20,5 @@ export const useInput = (initalValue, validations) => {
     onBlur,
     isDirty,
     ...valid,
-
   }
 }

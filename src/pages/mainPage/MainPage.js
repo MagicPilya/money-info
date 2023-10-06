@@ -3,14 +3,7 @@ import useProtectedRoute from "../../hooks/useProtectedRoute";
 import {useDispatch} from "react-redux";
 import {connect} from "react-redux";
 import {
-  Paper,
   Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Typography
 } from "@mui/material";
 import TopBar from "../../components/topBar/TopBar";
@@ -19,16 +12,23 @@ import OperationCard from "../../components/operationCard/OperationCard";
 
 function MainPage(props) {
   const store = props.store;
-  const [loading = true, setLoading] = useState();
-  const dispatch = useDispatch();
 
-  useEffect(() => {
+  // const operations = [1,2,3];
+  
+  const [loading = true, setLoading] = useState();
+  
+  const dispatch = useDispatch();
+  
+ useEffect(() => {
     setUserInfo().then(async (answer) => {
-      await dispatch({type: "SET_CURRENT_USER", payload: answer});
+      dispatch({type: 'SET_CURRENT_USER', payload: answer});
       await setLoading(false);
     });
-  }, [loading]);
+  }, [loading, dispatch]);
+ 
   useProtectedRoute();
+
+  
 
   if (loading) {
     return (
@@ -37,6 +37,8 @@ function MainPage(props) {
       </>
     );
   } else if (!loading) {
+    const user = props.store.currentUser.user;
+    const operations = user.operations;
     return (
       <div className="mainPage">
         <div className="mainPage__topBar">
@@ -61,9 +63,19 @@ function MainPage(props) {
             </Typography>
           </div>
           <div className="mainPage__workBox-table">
-            <OperationCard></OperationCard>
+            {operations.map((item, id) => (
+              <OperationCard
+                key={id}
+                operationName={item.operationName}
+                currentAccount={item.currentAccount}
+                description={item.description}
+                operationDate={item.operationDate}
+                operationType={item.operationType}
+                amount={item.amount}
+                currentCurrency={item.currentCurrency}
+              />
+            )) || undefined}
           </div>
-
         </div>
       </div>
 
