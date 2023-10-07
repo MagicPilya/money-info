@@ -12,12 +12,10 @@ import OperationCard from "../../components/operationCard/OperationCard";
 
 function MainPage(props) {
   const store = props.store;
-
-  // const operations = [1,2,3];
-  
   const [loading = true, setLoading] = useState();
-  
   const dispatch = useDispatch();
+  
+  const [operationID, setOperationID] = useState('');
   
  useEffect(() => {
     setUserInfo().then(async (answer) => {
@@ -27,8 +25,6 @@ function MainPage(props) {
   }, [loading, dispatch]);
  
   useProtectedRoute();
-
-  
 
   if (loading) {
     return (
@@ -66,6 +62,8 @@ function MainPage(props) {
             {operations.map((item, id) => (
               <OperationCard
                 key={id}
+                operationID={id}
+                setOperationID={setOperationID}
                 operationName={item.operationName}
                 currentAccount={item.currentAccount}
                 description={item.description}
@@ -78,9 +76,7 @@ function MainPage(props) {
           </div>
         </div>
       </div>
-
     );
   }
 }
-
 export default connect((state) => ({store: state}))(MainPage);

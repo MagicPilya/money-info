@@ -2,8 +2,9 @@ import {Alert, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typ
 import React, {useEffect, useState} from "react";
 import {useInput} from "../../hooks/useInput";
 import {increaseAccountMoney, decreaseAccountMoney, setOperation} from "../../firebase/database";
-import {useDispatch} from "react-redux";
+import {connect, useDispatch} from "react-redux";
 import setFinalObjectFromInputs from "../../utils/setFinalObjectFromInputs";
+import {findDataOfAccount} from "../../utils/arraysOperations";
 
 const selectStyle = {
   "width": "350px"
@@ -12,15 +13,35 @@ const selectStyle = {
 const textFieldStyle = {
   "width": "350px"
 }
-export default function Debts(props) {
-  const { creditors, uid,  currentAccountIndex, oldValueOfTotalMoney, currentAccount, currentCurrency, operations} = props;
+const Debts = (props) => {
+  
+  const {
+    typeOfOperation,
+    oldOperationAccount,
+    oldDescription,
+    oldOperationDate,
+    oldOperationType,
+    oldAmount,
+  } = props
+  
   const dispatch = useDispatch();
+  
+  const
+    user = props.store.currentUser.user,
+    accounts = user.accounts,
+    creditors = user.creditors,
+    uid = user.userInfo.uid,
+    currentAccountIndex = user.userInfo.currentAccountIndex,
+    currentAccount = user.userInfo.currentAccount,
+    currentCurrency = user.userInfo.currentCurrency,
+    oldValueOfTotalMoney = +findDataOfAccount(accounts, currentAccount, "totalMoney"),
+    operations = user.operations;
 
   const [isValid, setValid] = useState(false);
   const typeOfDebt = useInput('', {isEmpty: true});
-  const creditorName = useInput('', {isEmpty: true});
-  const sumOfDebt = useInput('', {isEmpty: true, isNegative: true, maxValue: {finalNumber: oldValueOfTotalMoney, areYouSure: isValid}});
-  const [operationType, setOperationType] = useState("");
+  const creditorName = useInput(oldDescription || '', {isEmpty: true});
+  const sumOfDebt = useInput(+oldAmount || '', {isEmpty: true, isNegative: true, maxValue: {finalNumber: +oldValueOfTotalMoney, areYouSure: isValid}});
+  const [operationType, setOperationType] = useState(oldOperationType || '');
   
   useEffect ( () => {
     (typeOfDebt.value === "debtNegative") ? setOperationType("minus") : setOperationType("plus");
@@ -31,15 +52,27 @@ export default function Debts(props) {
   
   const handlePositive = async () => {
     dispatch({type: "INCREASE_ACCOUNT_MONEY", payload: sumOfDebt.value});
-    await increaseAccountMoney(uid, currentAccountIndex, oldValueOfTotalMoney, sumOfDebt.value);
+    await increaseAccountMoney(uid, currentAccountIndex, +oldValueOfTotalMoney, +sumOfDebt.value);
   }
   const handleNegative = async () => {
     dispatch({type: "DECREASE_ACCOUNT_MONEY", payload: sumOfDebt.value});
-    await decreaseAccountMoney(uid, currentAccountIndex, oldValueOfTotalMoney, sumOfDebt.value);
+    await decreaseAccountMoney(uid, currentAccountIndex, +oldValueOfTotalMoney, +sumOfDebt.value);
   }
   const handleSetOperation = async (finalObject) => {
-    await setOperation(uid, operations.length, finalObject);
-    dispatch({type: "ADD_OPERATION", payload: finalObject});
+    switch (typeOfOperation) {
+      case "Edit": {
+        
+        break;
+      }
+      case "Add": {
+        await setOperation(uid, operations.length, finalObject);
+        dispatch({type: "ADD_OPERATION", payload: finalObject});
+        break;
+      }
+      default: {
+        break;
+      }
+    }
   }
 
   Date.prototype.today = function () {
@@ -69,7 +102,7 @@ export default function Debts(props) {
                 creditorName.value,
                 dateTime,
                 operationType,
-                sumOfDebt.value,
+                +sumOfDebt.value,
                 currentCurrency
               )
                 .then(async(answer) => await handleSetOperation(answer));
@@ -156,3 +189,4 @@ export default function Debts(props) {
       </div>
   )
 }
+export default connect((state) => ({store: state}))(Debts);

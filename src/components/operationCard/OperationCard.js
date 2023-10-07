@@ -1,24 +1,57 @@
 import {useEffect, useState} from "react";
+import OperationEditModal from "../../modal/operationEdit/OperationEditModal";
 
 export default function OperationCard (props) {
-  const {operationName, currentAccount, description, operationDate, operationType, amount, currentCurrency} = props;
+  const {
+    operationID,
+    setOperationID,
+    operationName,
+    currentAccount,
+    description,
+    operationDate,
+    operationType,
+    amount,
+    currentCurrency,
+  } = props;
   const [symbol, setSymbol] = useState('');
   const [color, setColor] = useState('');
+  const [openEdit, setOpenEdit] = useState(false);
   useEffect(() => {
     switch (operationType) {
       case "plus":
         setSymbol('+');
         setColor("green");
-        break
+        break;
       case "minus":
         setSymbol('-');
         setColor("red");
-        break
+        break;
+      default:
+        break;
     }
-  }, []);
+  }, [operationType]);
   
   return (
-    <div className="operationCard">
+  <>
+    <OperationEditModal
+      open={openEdit}
+      setOpen={setOpenEdit}
+      operationName={operationName}
+      currentAccount={currentAccount}
+      description={description}
+      operationDate={operationDate}
+      operationType={operationType}
+      amount={amount}
+      currentCurrency={currentCurrency}
+    />
+    <div className="operationCard"
+
+       onClick={()=> {
+         setOpenEdit(true);
+         setOperationID(operationID);
+         console.log(operationID);
+       }}
+    >
       <div className="operationCard__date">{operationDate}</div>
       <div className="operationCard__leftBlock">
         <div className="operationCard__leftBlock-operationType">{operationName}</div>
@@ -31,8 +64,8 @@ export default function OperationCard (props) {
           <div className="operationCard__rightBlock-money-amount">{amount}</div>
           <div className="operationCard__rightBlock-currency">{currentCurrency}</div>
         </div>
-        
       </div>
     </div>
+  </>
   )
 }

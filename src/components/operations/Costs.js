@@ -51,7 +51,6 @@ export default function Costs(props) {
         id="operations-costs-form"
         onSubmit={(e) => {
         e.preventDefault();
-        console.log(composeCostsData(costsAmount.value, categoryName.value, date.value, comment.value));
         handleSubmit();
       }}>
 

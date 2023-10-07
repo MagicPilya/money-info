@@ -56,7 +56,6 @@ function OperationsModal(props) {
     });
     return index;
   }
-
   return (
     <>
       <Modal

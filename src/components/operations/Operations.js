@@ -9,13 +9,10 @@ function Operations(props) {
   const { operationName, setCloseModal, uid, currentAccountIndex, oldValueOfTotalMoney } = props;
   const user = props.store.currentUser.user;
   const currentAccount = user.userInfo.currentAccount;
-  const currentCurrency = user.userInfo.currentCurrency;
   const categories = user.categories;
   const costs = categories.costs;
   const retrievings = categories.retrievings;
-  const creditors = user.creditors;
   const accounts = user.accounts;
-  const operations = user.operations;
 
   switch (operationName) {
     case "Cost":
@@ -51,13 +48,8 @@ function Operations(props) {
     case "Debt":
       return (
         <Debts
-          operations={operations}
-          currentAccount={currentAccount}
-          currentCurrency={currentCurrency}
-          creditors={creditors}
-          uid={uid}
-          currentAccountIndex={currentAccountIndex}
-          oldValueOfTotalMoney={oldValueOfTotalMoney}
+          typeOfOperation={"Add"}
+          
         />);
     default:
       return (
