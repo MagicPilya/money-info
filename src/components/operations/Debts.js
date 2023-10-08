@@ -1,7 +1,7 @@
 import {Alert, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import {useInput} from "../../hooks/useInput";
-import {increaseAccountMoney, decreaseAccountMoney, setOperation} from "../../firebase/database";
+import {increaseAccountMoney, decreaseAccountMoney, setOperation, editOperation} from "../../firebase/database";
 import {connect, useDispatch} from "react-redux";
 import setFinalObjectFromInputs from "../../utils/setFinalObjectFromInputs";
 import {findDataOfAccount} from "../../utils/arraysOperations";
@@ -22,6 +22,7 @@ const Debts = (props) => {
     oldOperationDate,
     oldOperationType,
     oldAmount,
+    operationID,
   } = props
   
   const dispatch = useDispatch();
@@ -38,16 +39,12 @@ const Debts = (props) => {
     operations = user.operations;
 
   const [isValid, setValid] = useState(false);
-  const typeOfDebt = useInput('', {isEmpty: true});
+  const typeOfDebt = useInput(oldOperationType || '', {isEmpty: true});
   const creditorName = useInput(oldDescription || '', {isEmpty: true});
   const sumOfDebt = useInput(+oldAmount || '', {isEmpty: true, isNegative: true, maxValue: {finalNumber: +oldValueOfTotalMoney, areYouSure: isValid}});
-  const [operationType, setOperationType] = useState(oldOperationType || '');
   
-  useEffect ( () => {
-    (typeOfDebt.value === "debtNegative") ? setOperationType("minus") : setOperationType("plus");
-  }, [typeOfDebt])
   useEffect( ()=> {
-    setValid(typeOfDebt.value === "debtNegative");
+    setValid(typeOfDebt.value === "minus");
   }, [sumOfDebt])
   
   const handlePositive = async () => {
@@ -61,12 +58,18 @@ const Debts = (props) => {
   const handleSetOperation = async (finalObject) => {
     switch (typeOfOperation) {
       case "Edit": {
-        
+        await editOperation(uid, operationID, finalObject, accounts, operations);
+        dispatch({type: "EDIT_OPERATION", payload: {finalObject, operationID}})
         break;
       }
       case "Add": {
         await setOperation(uid, operations.length, finalObject);
         dispatch({type: "ADD_OPERATION", payload: finalObject});
+        if (typeOfDebt.value === "plus") {
+          await handlePositive();
+        } else if (typeOfDebt.value === "minus") {
+          await handleNegative();
+        }
         break;
       }
       default: {
@@ -74,15 +77,13 @@ const Debts = (props) => {
       }
     }
   }
-
   Date.prototype.today = function () {
     return ((this.getDate() < 10)?"0":"") + this.getDate() +"/"+(((this.getMonth()+1) < 10)?"0":"") + (this.getMonth()+1) +"/"+ this.getFullYear();
   }
   const currentDate = new Date();
   const dateTime = currentDate.today();
-
+  
   return (
-
       <div className="operations__debts">
           <form
             className="operations__debts-form"
@@ -90,18 +91,13 @@ const Debts = (props) => {
             noValidate={true}
             onSubmit={ async  (e) => {
               e.preventDefault();
-              if (typeOfDebt.value === "debtPositive") {
-                  await handlePositive();
-              } else if (typeOfDebt.value === "debtNegative") {
-                  await handleNegative();
-              }
               
               await setFinalObjectFromInputs(
                 "Долги",
                 currentAccount,
                 creditorName.value,
                 dateTime,
-                operationType,
+                typeOfDebt.value,
                 +sumOfDebt.value,
                 currentCurrency
               )
@@ -110,6 +106,12 @@ const Debts = (props) => {
               <Typography variant="h4" gutterBottom component="h4">
                   Долговые операции
               </Typography>
+            { (typeOfOperation === "Edit") ? <EditData
+              typeOfOperation={typeOfOperation}
+              accounts={accounts}
+              oldOperationAccount={oldOperationAccount}
+              oldOperationDate={oldOperationDate}
+            /> : null}
               <div className="operations__debts-form-input">
                   {((typeOfDebt.isDirty) &&
                     typeOfDebt.isEmpty ) && (
@@ -129,8 +131,8 @@ const Debts = (props) => {
                         onChange={typeOfDebt.onChange}
                         onBlur={typeOfDebt.onBlur}
                       >
-                          <MenuItem value="debtNegative">Я дал в долг / Я вернул долг</MenuItem>
-                          <MenuItem value="debtPositive">Мне дали в долг / Мне вернули долг</MenuItem>
+                          <MenuItem value="minus">Я дал в долг / Я вернул долг</MenuItem>
+                          <MenuItem value="plus">Мне дали в долг / Мне вернули долг</MenuItem>
                       </Select>
                   </FormControl>
               </div>
@@ -188,5 +190,68 @@ const Debts = (props) => {
 
       </div>
   )
+}
+
+const EditData = (props) => {
+  const {typeOfOperation, oldOperationAccount, oldOperationDate, accounts} = props;
+  
+  const account = useInput(oldOperationAccount, {isEmpty: true});
+  const date = useInput(oldOperationDate.split('/').reverse().join('-'), {isEmpty: true});
+  if (typeOfOperation === "Edit"){
+    return (
+      <>
+        <div className="operations__debts-form-input">
+          {((account.isDirty) &&
+            account.isEmpty ) && (
+            <Alert
+              severity="warning"
+              variant="filled">{account.textError}
+            </Alert>)}
+          <FormControl sx={selectStyle} >
+            <InputLabel id="operations__debts-form-selectType-label">
+              Счёт
+            </InputLabel>
+            <Select
+              labelId="operations__debts-form-selectType-label"
+              id="operations__debts-form-selectType"
+              label="Счёт"
+              value={account.value}
+              onChange={account.onChange}
+              onBlur={account.onBlur}
+            >
+              {accounts.map((item, id) =>  (
+                <MenuItem
+                  value={item.name}
+                  key={id}
+                >{item.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+        <div className="operations__debts-form-input">
+          {((date.isDirty) &&
+            date.isEmpty) && (
+            <Alert
+              severity="warning"
+              variant="filled">{date.textError}
+            </Alert>)}
+          <TextField
+            sx={textFieldStyle}
+            id="operations-costs-date"
+            label="Дата"
+            value={date.value}
+            onChange={date.onChange}
+            onBlur={date.onBlur}
+            variant="outlined"
+            type="date"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            />
+        </div>
+      </>
+    )
+  }
+  
 }
 export default connect((state) => ({store: state}))(Debts);

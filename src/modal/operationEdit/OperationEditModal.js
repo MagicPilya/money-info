@@ -26,6 +26,7 @@ function OperationsEditModal(props) {
     operationType,
     amount,
     currentCurrency,
+    operationID,
   } = props;
   
     return (
@@ -59,6 +60,7 @@ function OperationsEditModal(props) {
                 operationType={operationType}
                 amount={amount}
                 currentCurrency={currentCurrency}
+                operationID={operationID}
               />
             </Box>
           </Fade>

@@ -23,7 +23,6 @@ export const setPath = async (uid) => {
     });
   });
 };
-
 export const addUser = async (
   name,
   email,
@@ -234,10 +233,30 @@ export const decreaseAccountMoney = async (userId, index, oldValue, decreaser) =
 export const increaseAccountMoney = async (userId, index, oldValue, increaser) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
   const newValue = +oldValue + +increaser;
+  let accounts
   await updateDoc(docRef, {
     totalMoney: newValue
   });
 };
+
+export const editOperation = async (userId, index, finalObject, accounts, operations) => {
+  console.log(accounts, operations);
+  const newAmount = finalObject.amount;
+  const oldAmount = operations[index].amount;
+  const symbol = finalObject.operationType;
+  
+  const difference = symbol === "plus" ? newAmount - oldAmount : oldAmount - newAmount;
+  
+  accounts.map((item, index) => {
+    if (item.name === finalObject.currentAccount) {
+      increaseAccountMoney(userId, index, item.totalMoney, difference); // Тут хуйня
+    }
+  });
+  const docRef = doc(db, "operations", userId, "operations", `${index}`);
+  await updateDoc(docRef, finalObject);
+  
+};
+
 
 
 

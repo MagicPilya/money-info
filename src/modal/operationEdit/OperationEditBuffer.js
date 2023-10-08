@@ -4,11 +4,12 @@ const OperationEditBuffer = (props) => {
   
   const {
     operationName,
-    operationAccount,
+    currentAccount,
     description,
     operationDate,
     operationType,
     amount,
+    operationID,
   } = props;
   
   switch (operationName) {
@@ -16,11 +17,12 @@ const OperationEditBuffer = (props) => {
       return (
         <Debts
           typeOfOperation={"Edit"}
-          oldOperationAccount={operationAccount}
+          oldOperationAccount={currentAccount}
           oldDescription={description}
           oldOperationDate={operationDate}
           oldOperationType={operationType}
           oldAmount={amount}
+          operationID={operationID}
         />
       )
     }

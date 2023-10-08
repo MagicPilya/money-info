@@ -71,6 +71,28 @@ const userReducer = createReducer({}, (builder) => {
     .addCase("ADD_OPERATION", (state, action) => {
       state.user.operations.push(action.payload);
     })
+    .addCase("EDIT_OPERATION", (state, action) => {
+      const symbol = action.payload.finalObject.operationType;
+      const newAmount = action.payload.finalObject.amount;
+      
+      const operationIndex = state.user.operations.findIndex(
+        (item, index) => index === action.payload.operationID
+      );
+      
+      if (operationIndex !== -1) {
+        const oldAmount = state.user.operations[operationIndex].amount;
+        
+        state.user.operations[operationIndex] = action.payload.finalObject;
+        
+        const difference = symbol === "plus" ? newAmount - oldAmount : oldAmount - newAmount;
+        
+        state.user.accounts.forEach((item, index) => {
+          if (item.name === action.payload.finalObject.currentAccount) {
+            state.user.accounts[index].totalMoney += difference;
+          }
+        });
+      }
+    })
 })
 
 export default userReducer;

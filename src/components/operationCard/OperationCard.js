@@ -43,13 +43,13 @@ export default function OperationCard (props) {
       operationType={operationType}
       amount={amount}
       currentCurrency={currentCurrency}
+      operationID={operationID}
     />
     <div className="operationCard"
 
        onClick={()=> {
          setOpenEdit(true);
          setOperationID(operationID);
-         console.log(operationID);
        }}
     >
       <div className="operationCard__date">{operationDate}</div>
