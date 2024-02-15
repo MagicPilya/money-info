@@ -24,7 +24,7 @@ export default function Currency(props) {
 
   const handleDelete = async () => {
     await deleteCurrency(uid, currency);
-    await dispatch({ type: "DELETE_CURRENCY", payload: currency });  
+    dispatch({ type: "DELETE_CURRENCY", payload: currency });
   }
 
   return (
@@ -52,17 +52,19 @@ export default function Currency(props) {
         onClose={handleClose}
         TransitionComponent={Fade}
       >
-        {currenciesList.map((item, key) => (
+
+          // Удалили dispatch
+        { currenciesList.map((item, key) => (
           <MenuItem key={key}>
             <p
               style={{ width: "100%", height: "100%", margin: "10px 10px" }}
               onClick={async () => {
-                  await dispatch({
+                  dispatch({
                     type: "SET_ACTIVE_CURRENCY",
                     payload: item,
                   });
                   await setCurrentCurrency(uid, item);
-                  await dispatch({
+                  dispatch({
                     type: "SET_ACTIVE_CURRENCY_INDEX",
                     payload: key,
                   });

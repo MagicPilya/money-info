@@ -23,20 +23,44 @@ export const setPath = async (uid) => {
     });
   });
 };
+
+export const deleteInitialValues = async (userID, pathSegments) => {
+    setPath(userID).then(async (answer) => {
+      const docRef = doc(db, `${pathSegments}`, `${answer}`,`${pathSegments}`, 'initial');
+      await deleteDoc(docRef);
+    });
+};
+
+
 export const addUser = async (
   name,
   email,
   userID,
-  savedData = { totalMoney: 0, currentCurrency: "USD" }
+
 ) => {
   await setDoc(doc(db, "users", `${userID}`), {
     email: email,
     name: name,
     uid: userID,
-    savedData: savedData,
+    currentAccount: null,
+    currentAccountIndex: null,
+    currentCurrency: null,
+    currentCurrencyIndex: null
   });
-  await setDoc(doc(db, "currencies", `${userID}`), {
-    currencies: ["USD", "BYN"],
+  await setDoc(doc(db, "currencies", `${userID}`, "currencies", "initial"), {
+    initial: "test"
+  });
+  await setDoc(doc(db, "accounts", `${userID}`, "accounts", "initial"), {
+    initial: "test"
+  });
+  await setDoc(doc(db, "categories", `${userID}`, "categories", "initial"), {
+    initial: "test"
+  });
+  await setDoc(doc(db, "creditors", `${userID}`, "creditors", "initial"), {
+    initial: "test"
+  });
+  await setDoc(doc(db, "operations", `${userID}`, "operations", "initial"), {
+    initial: "test"
   });
 };
 
@@ -58,14 +82,18 @@ export const getUser = async (userID) => {
 export const getCurrencies = async (userID) => {
   return new Promise((resolve, reject) => {
     setPath(userID).then(async (answer) => {
-      const docRef = doc(db, "currencies", answer);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        resolve(docSnap.data());
-      } else {
-        console.log("No such document!");
+      let finalArray = [];
+      for (let i = 0; i > -1; i++) {
+        let docRef = doc(db, "currencies", answer, "currencies", `${i}`);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          finalArray.push(docSnap.data());
+        } else {
+          break;
+        }
       }
-    });
+      resolve(finalArray);
+    })
   });
 };
 
@@ -213,7 +241,7 @@ export const getRetrievings = async (userID) => {
 export const getCreditors = async (userID) => {
   return new Promise((resolve, reject) => {
     setPath(userID).then(async (answer) => {
-      const docRef = doc(db, "creditors", answer);
+      const docRef = doc(db, "creditors", answer, "creditors", "initial");
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         resolve(docSnap.data());

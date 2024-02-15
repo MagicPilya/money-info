@@ -7,6 +7,7 @@ import {
   Typography
 } from "@mui/material";
 import TopBar from "../../components/topBar/TopBar";
+import {deleteInitialValues} from '../../firebase/database.js';
 import {setUserInfo} from "../../utils/setUserInfo";
 import OperationCard from "../../components/operationCard/OperationCard";
 
@@ -14,17 +15,24 @@ function MainPage(props) {
   const store = props.store;
   const [loading = true, setLoading] = useState();
   const dispatch = useDispatch();
-  
+  // eslint-disable-next-line
   const [operationID, setOperationID] = useState('');
   
  useEffect(() => {
+
     setUserInfo().then(async (answer) => {
       dispatch({type: 'SET_CURRENT_USER', payload: answer});
-      await setLoading(false);
-    });
+        await setLoading(false);
+        await deleteInitialValues(answer.user, 'accounts');
+        await deleteInitialValues(answer.user, 'categories');
+        await deleteInitialValues(answer.user, 'creditors');
+        await deleteInitialValues(answer.user, 'currencies');
+        await deleteInitialValues(answer.user, 'operations');
+        })
   }, [loading, dispatch]);
  
   useProtectedRoute();
+
 
   if (loading) {
     return (

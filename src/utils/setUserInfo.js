@@ -5,23 +5,23 @@ import {
   getCosts,
   getRetrievings,
   getCreditors,
-  getOperations
+  getOperations,
 } from "../firebase/database";
 
 export const setUserInfo = async () => {
   return new Promise(async (resolve, reject) => {
     let user = "",
-        currency = "",
-        accounts = "",
-        categories = {},
-        creditors = "",
-        operations = "";
+        currencies = [],
+        accounts = [],
+        categories = {costs: [], retrievings: []},
+        creditors = [],
+        operations = [];
       const uid = localStorage.getItem("user");
     await getUser(uid).then((answer) => {
       user = answer;
     });
     await getCurrencies(uid).then((answer) => {
-      currency = answer;
+      currencies = answer;
     });
     await getAccounts(uid).then((answer) => {
       accounts = answer;
@@ -36,17 +36,12 @@ export const setUserInfo = async () => {
       creditors = answer;
     })
     await getOperations(uid).then((answer) => {
-      // if (answer.length === 1) {
-      //   operations = [];
-      // } else {
-      //   operations = answer.slice(answer.length);
-      // }
       operations = answer;
     })
     resolve({
       userInfo:
       user,
-      currency,
+      currencies,
       accounts,
       categories,
       creditors,

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import {connect} from "react-redux";
 
 import { MenuItem, Menu, Button, Fade } from "@mui/material";
 import {
@@ -24,10 +25,17 @@ import AddAccountModal from "../../modal/addAccount/AddAccountModal";
 import PreDeleteDialog from "../../modal/info/PreDeleteDialog";
 import OperationsModal from "../../modal/operations/OperationsModal";
 import {useInput} from "../../hooks/useInput";
+ function AccountsList(props) {
 
-export default function AccountsList(props) {
-  const { accounts, currentAccount, uid, currenciesList, currentAccountIndex } =
-    props;
+  const store = props.store;
+  const user = store.currentUser.user;
+  const userInfo = user.userInfo;
+  const accounts = user.accounts;
+  const uid = userInfo.uid;
+  const currenciesList = user.currencies;
+  const currentAccount = userInfo.currentAccount;
+  const currentAccountIndex = userInfo.currentAccountIndex;
+
   const dispatch = useDispatch();
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -85,6 +93,8 @@ export default function AccountsList(props) {
     });
   };
 
+
+  // У dispatch были await, если сломается - верни
   const handleDelete = async () => {
     const name = getNextAccountName();
     await setCurrentAccount(
@@ -92,7 +102,7 @@ export default function AccountsList(props) {
       getNextAccountName(),
       +(currentAccountIndex + 1)
     );
-    await dispatch({
+    dispatch({
       type: "SET_ACTIVE_ACCOUNT",
       payload: {
         name: `${name}`,
@@ -100,7 +110,7 @@ export default function AccountsList(props) {
       },
     });
     await deleteAccount(uid, currentAccountIndex);
-    await dispatch({
+    dispatch({
       type: "DELETE_ACCOUNT",
       payload: currentAccountIndex,
     });
@@ -246,3 +256,4 @@ export default function AccountsList(props) {
     </div>
   );
 }
+export default connect((state) => ({ store: state }))(AccountsList);
