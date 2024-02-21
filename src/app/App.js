@@ -5,7 +5,7 @@ import LoginPage from "../pages/authPages/loginPage/LoginPage";
 import RegistrationPage from "../pages/authPages/registrationPage/RegistrationPage";
 
 import "./App.scss";
-// import { connect } from "react-redux";
+
 const App = () => {
   const [user, setUser] = useState();
 
@@ -37,5 +37,4 @@ const App = () => {
   );
 };
 
-// export default connect((state) => ({ store: state }))(App);
 export default App;

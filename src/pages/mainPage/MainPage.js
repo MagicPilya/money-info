@@ -1,14 +1,11 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import useProtectedRoute from "../../hooks/useProtectedRoute";
-import {useDispatch} from "react-redux";
-import {connect} from "react-redux";
-import {
-  Skeleton,
-  Typography
-} from "@mui/material";
+import { useDispatch } from "react-redux";
+import { connect } from "react-redux";
+import { Skeleton, Typography } from "@mui/material";
 import TopBar from "../../components/topBar/TopBar";
-import {deleteInitialValues} from '../../firebase/database.js';
-import {setUserInfo} from "../../utils/setUserInfo";
+import { deleteInitialValues } from "../../firebase/database.js";
+import { setUserInfo } from "../../utils/setUserInfo";
 import OperationCard from "../../components/operationCard/OperationCard";
 
 function MainPage(props) {
@@ -16,28 +13,26 @@ function MainPage(props) {
   const [loading = true, setLoading] = useState();
   const dispatch = useDispatch();
   // eslint-disable-next-line
-  const [operationID, setOperationID] = useState('');
-  
- useEffect(() => {
+  const [operationID, setOperationID] = useState("");
 
+  useEffect(() => {
     setUserInfo().then(async (answer) => {
-      dispatch({type: 'SET_CURRENT_USER', payload: answer});
-        await setLoading(false);
-        await deleteInitialValues(answer.user, 'accounts');
-        await deleteInitialValues(answer.user, 'categories');
-        await deleteInitialValues(answer.user, 'creditors');
-        await deleteInitialValues(answer.user, 'currencies');
-        await deleteInitialValues(answer.user, 'operations');
-        })
+      dispatch({ type: "SET_CURRENT_USER", payload: answer });
+      await setLoading(false);
+      await deleteInitialValues(answer.user, "accounts");
+      await deleteInitialValues(answer.user, "categories");
+      await deleteInitialValues(answer.user, "creditors");
+      await deleteInitialValues(answer.user, "currencies");
+      await deleteInitialValues(answer.user, "operations");
+    });
   }, [loading, dispatch]);
- 
-  useProtectedRoute();
 
+  useProtectedRoute();
 
   if (loading) {
     return (
       <>
-        <Skeleton variant="rectangular" width={210} height={60}/>
+        <Skeleton variant="rectangular" width={210} height={60} />
       </>
     );
   } else if (!loading) {
@@ -49,15 +44,17 @@ function MainPage(props) {
           <TopBar
             name={store.currentUser.user.userInfo.name}
             totalMoney={store.currentUser.user.userInfo.totalMoney}
-            currentCurrency={
-              store.currentUser.user.userInfo.currentCurrency
+            currentCurrency={store.currentUser.user.userInfo.currentCurrency}
+            currentCurrencyIndex={
+              store.currentUser.user.userInfo.currentCurrencyIndex
             }
-            currentCurrencyIndex={store.currentUser.user.userInfo.currentCurrencyIndex}
-            currenciesList={store.currentUser.user.currency.currencies}
+            currenciesList={store.currentUser.user.currencies.currencies}
             uid={store.currentUser.user.userInfo.uid}
             accounts={store.currentUser.user.accounts}
             currentAccount={store.currentUser.user.userInfo.currentAccount}
-            currentAccountIndex={store.currentUser.user.userInfo.currentAccountIndex}
+            currentAccountIndex={
+              store.currentUser.user.userInfo.currentAccountIndex
+            }
           ></TopBar>
         </div>
         <div className="mainPage__workBox">
@@ -67,24 +64,28 @@ function MainPage(props) {
             </Typography>
           </div>
           <div className="mainPage__workBox-table">
-            {operations.map((item, id) => (
-              <OperationCard
-                key={id}
-                operationID={id}
-                setOperationID={setOperationID}
-                operationName={item.operationName}
-                currentAccount={item.currentAccount}
-                description={item.description}
-                operationDate={item.operationDate}
-                operationType={item.operationType}
-                amount={item.amount}
-                currentCurrency={item.currentCurrency}
-              />
-            )) || undefined}
+            {operations.length > 0 ? (
+              operations.map((item, id) => (
+                <OperationCard
+                  key={id}
+                  operationID={id}
+                  setOperationID={setOperationID}
+                  operationName={item.operationName}
+                  currentAccount={item.currentAccount}
+                  description={item.description}
+                  operationDate={item.operationDate}
+                  operationType={item.operationType}
+                  amount={item.amount}
+                  currentCurrency={item.currentCurrency}
+                />
+              ))
+            ) : (
+              <p>У вас пока что нет операций</p>
+            )}
           </div>
         </div>
       </div>
     );
   }
 }
-export default connect((state) => ({store: state}))(MainPage);
+export default connect((state) => ({ store: state }))(MainPage);

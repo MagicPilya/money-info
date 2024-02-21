@@ -8,6 +8,8 @@
     "@mui/icons-material": "^5.14.1",
     "@mui/joy": "^5.0.0-beta.1",
     "@mui/material": "^5.14.2",
+    "@react-buddy/ide-toolbox": "^2.4.0",
+    "@react-buddy/palette-mui": "^5.0.1",
     "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -21,9 +23,7 @@
     "react-scripts": "5.0.1",
     "redux": "^4.2.1",
     "sass": "^1.63.6",
-    "web-vitals": "^2.1.4",
-    "@react-buddy/ide-toolbox": "^2.4.0",
-    "@react-buddy/palette-mui": "^5.0.1"
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -48,5 +48,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5"
   }
 }
