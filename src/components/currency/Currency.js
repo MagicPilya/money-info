@@ -35,75 +35,77 @@ function Currency(props) {
     await deleteCurrency(uid, currency);
     dispatch({ type: "DELETE_CURRENCY", payload: currency });
   };
-
-  return (
-    <div className="currency">
-      Всего: {`${totalMoney} В валюте`}
-      <Button
-        id="fade-button"
-        aria-controls={open ? "fade-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-        onClick={handleClick}
-        color="success"
-        sx={{ fontSize: "20px" }}
-      >
-        {currentCurrency}
-        <ExpandMore />
-      </Button>
-      <Menu
-        id="fade-menu"
-        MenuListProps={{
-          "aria-labelledby": "fade-button",
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        TransitionComponent={Fade}
-      >
-        {/*Удалили dispatch*/}
-        {/*{ currenciesList.map((item, key) => (*/}
-        {/*  <MenuItem key={key}>*/}
-        {/*    <p*/}
-        {/*      style={{ width: "100%", height: "100%", margin: "10px 10px" }}*/}
-        {/*      onClick={async () => {*/}
-        {/*          dispatch({*/}
-        {/*            type: "SET_ACTIVE_CURRENCY",*/}
-        {/*            payload: item,*/}
-        {/*          });*/}
-        {/*          await setCurrentCurrency(uid, item);*/}
-        {/*          dispatch({*/}
-        {/*            type: "SET_ACTIVE_CURRENCY_INDEX",*/}
-        {/*            payload: key,*/}
-        {/*          });*/}
-        {/*          await handleClose();*/}
-        {/*      }}*/}
-        {/*    >*/}
-        {/*      {item}*/}
-        {/*    </p>*/}
-        {/*    <IconButton*/}
-        {/*      aria-label="delete"*/}
-        {/*      onClick={ () => {*/}
-        {/*        if (item !== currentCurrency) {*/}
-        {/*          setCurrency(item);*/}
-        {/*          setOpenDialog(true);*/}
-        {/*          handleClose();*/}
-        {/*        }*/}
-        {/*      }}*/}
-        {/*    >*/}
-        {/*      <RemoveCircleOutline />*/}
-        {/*    </IconButton>*/}
-        {/*  </MenuItem>*/}
-        {/*))}*/}
-      </Menu>
-      <PreDeleteDialog
-        handleAction={handleDelete}
-        trigger={openDialog}
-        triggerSetter={setOpenDialog}
-        title="валюту"
-      />
-    </div>
-  );
+  if (currenciesList.length > 0) {
+    return (
+      <div className="currency">
+        Всего: {`${totalMoney} В валюте`}
+        <Button
+          id="fade-button"
+          aria-controls={open ? "fade-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? "true" : undefined}
+          onClick={handleClick}
+          color="success"
+          sx={{ fontSize: "20px" }}
+        >
+          {currentCurrency}
+          <ExpandMore />
+        </Button>
+        <Menu
+          id="fade-menu"
+          MenuListProps={{
+            "aria-labelledby": "fade-button",
+          }}
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          TransitionComponent={Fade}
+        >
+          {currenciesList.map((item, key) => (
+            <MenuItem key={key}>
+              <p
+                style={{ width: "100%", height: "100%", margin: "10px 10px" }}
+                onClick={async () => {
+                  dispatch({
+                    type: "SET_ACTIVE_CURRENCY",
+                    payload: item,
+                  });
+                  await setCurrentCurrency(uid, item);
+                  dispatch({
+                    type: "SET_ACTIVE_CURRENCY_INDEX",
+                    payload: key,
+                  });
+                  await handleClose();
+                }}
+              >
+                {item}
+              </p>
+              <IconButton
+                aria-label="delete"
+                onClick={() => {
+                  if (item !== currentCurrency) {
+                    setCurrency(item);
+                    setOpenDialog(true);
+                    handleClose();
+                  }
+                }}
+              >
+                <RemoveCircleOutline />
+              </IconButton>
+            </MenuItem>
+          ))}
+        </Menu>
+        <PreDeleteDialog
+          handleAction={handleDelete}
+          trigger={openDialog}
+          triggerSetter={setOpenDialog}
+          title="валюту"
+        />
+      </div>
+    );
+  } else {
+    return <div></div>;
+  }
 }
 
 export default connect((state) => ({ store: state }))(Currency);

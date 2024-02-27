@@ -80,7 +80,9 @@ function MainPage(props) {
                 />
               ))
             ) : (
-              <p>У вас пока что нет операций</p>
+              <Typography variant="h3" gutterBottom component="h3">
+                У вас нет операций
+              </Typography>
             )}
           </div>
         </div>
