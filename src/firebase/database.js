@@ -25,19 +25,19 @@ export const setPath = async (uid) => {
 };
 
 export const deleteInitialValues = async (userID, pathSegments) => {
-    setPath(userID).then(async (answer) => {
-      const docRef = doc(db, `${pathSegments}`, `${answer}`,`${pathSegments}`, 'initial');
-      await deleteDoc(docRef);
-    });
+  setPath(userID).then(async (answer) => {
+    const docRef = doc(
+      db,
+      `${pathSegments}`,
+      `${answer}`,
+      `${pathSegments}`,
+      "initial",
+    );
+    await deleteDoc(docRef);
+  });
 };
 
-
-export const addUser = async (
-  name,
-  email,
-  userID,
-
-) => {
+export const addUser = async (name, email, userID) => {
   await setDoc(doc(db, "users", `${userID}`), {
     email: email,
     name: name,
@@ -45,22 +45,22 @@ export const addUser = async (
     currentAccount: null,
     currentAccountIndex: null,
     currentCurrency: null,
-    currentCurrencyIndex: null
+    currentCurrencyIndex: null,
   });
   await setDoc(doc(db, "currencies", `${userID}`, "currencies", "initial"), {
-    initial: "test"
+    initial: "test",
   });
   await setDoc(doc(db, "accounts", `${userID}`, "accounts", "initial"), {
-    initial: "test"
+    initial: "test",
   });
   await setDoc(doc(db, "categories", `${userID}`, "categories", "initial"), {
-    initial: "test"
+    initial: "test",
   });
   await setDoc(doc(db, "creditors", `${userID}`, "creditors", "initial"), {
-    initial: "test"
+    initial: "test",
   });
   await setDoc(doc(db, "operations", `${userID}`, "operations", "initial"), {
-    initial: "test"
+    initial: "test",
   });
 };
 
@@ -93,7 +93,7 @@ export const getCurrencies = async (userID) => {
         }
       }
       resolve(finalArray);
-    })
+    });
   });
 };
 
@@ -136,7 +136,7 @@ export const getOperations = async (userID) => {
 export const setOperation = async (userId, index, finalObject) => {
   const docRef = doc(db, "operations", userId, "operations", `${index}`);
   await setDoc(docRef, finalObject);
-}
+};
 
 export const setCurrentCurrency = async (userId, currentCurrency) => {
   const docRef = doc(db, "users", userId);
@@ -149,12 +149,12 @@ export const setCurrentAccount = async (userId, currentAccount, index) => {
   const docRef = doc(db, "users", userId);
   await updateDoc(docRef, {
     currentAccount: currentAccount,
-    currentAccountIndex: index
+    currentAccountIndex: index,
   });
 };
 
-export const addCurrency = async (userId, currency) => {
-  const docRef = doc(db, "currencies", userId);
+export const addCurrency = async (userId, currency, id) => {
+  const docRef = doc(db, "currencies", `${userId}`, "currencies", `${id}`);
   await updateDoc(docRef, {
     currencies: arrayUnion(currency),
   });
@@ -165,7 +165,7 @@ export const addAccount = async (userId, account, id) => {
   await setDoc(docRef, {
     name: account.name,
     currency: account.currency,
-    totalMoney: Number(account.totalMoney)
+    totalMoney: Number(account.totalMoney),
   });
 };
 
@@ -186,21 +186,21 @@ export const renameAccount = async (userId, index, newName) => {
 export const deleteAccount = async (userId, index) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
   await deleteDoc(docRef);
-}
+};
 
 export const correctBalance = async (userId, index, newBalance) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
   await updateDoc(docRef, {
     totalMoney: Number(newBalance),
   });
-}
+};
 
 export const setCurrentCurrencyIndex = async (userId, index) => {
   const docRef = doc(db, "users", userId);
   await updateDoc(docRef, {
     currentCurrencyIndex: index,
   });
-}
+};
 
 export const getCosts = async (userID) => {
   return new Promise((resolve, reject) => {
@@ -251,30 +251,47 @@ export const getCreditors = async (userID) => {
     });
   });
 };
-export const decreaseAccountMoney = async (userId, index, oldValue, decreaser) => {
+export const decreaseAccountMoney = async (
+  userId,
+  index,
+  oldValue,
+  decreaser,
+) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
   const newValue = oldValue - decreaser;
   await updateDoc(docRef, {
-    totalMoney: newValue
+    totalMoney: newValue,
   });
 };
-export const increaseAccountMoney = async (userId, index, oldValue, increaser) => {
+export const increaseAccountMoney = async (
+  userId,
+  index,
+  oldValue,
+  increaser,
+) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
   const newValue = +oldValue + +increaser;
-  let accounts
+  let accounts;
   await updateDoc(docRef, {
-    totalMoney: newValue
+    totalMoney: newValue,
   });
 };
 
-export const editOperation = async (userId, index, finalObject, accounts, operations) => {
+export const editOperation = async (
+  userId,
+  index,
+  finalObject,
+  accounts,
+  operations,
+) => {
   console.log(accounts, operations);
   const newAmount = finalObject.amount;
   const oldAmount = operations[index].amount;
   const symbol = finalObject.operationType;
-  
-  const difference = symbol === "plus" ? newAmount - oldAmount : oldAmount - newAmount;
-  
+
+  const difference =
+    symbol === "plus" ? newAmount - oldAmount : oldAmount - newAmount;
+
   accounts.map((item, index) => {
     if (item.name === finalObject.currentAccount) {
       increaseAccountMoney(userId, index, item.totalMoney, difference); // Тут хуйня
@@ -282,9 +299,4 @@ export const editOperation = async (userId, index, finalObject, accounts, operat
   });
   const docRef = doc(db, "operations", userId, "operations", `${index}`);
   await updateDoc(docRef, finalObject);
-  
 };
-
-
-
-

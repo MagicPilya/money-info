@@ -28,6 +28,7 @@ function AccountsList(props) {
   const store = props.store;
   const user = store.currentUser.user;
   const userInfo = user.userInfo;
+
   const accounts = user.accounts;
   const uid = userInfo.uid;
   const currenciesList = user.currencies;

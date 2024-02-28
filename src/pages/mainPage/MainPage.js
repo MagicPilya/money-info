@@ -19,6 +19,8 @@ function MainPage(props) {
     setUserInfo().then(async (answer) => {
       dispatch({ type: "SET_CURRENT_USER", payload: answer });
       await setLoading(false);
+
+      // При добавлении элементов в коллекцию вызывать данную фичу при условии, что значение initial существует.
       await deleteInitialValues(answer.user, "accounts");
       await deleteInitialValues(answer.user, "categories");
       await deleteInitialValues(answer.user, "creditors");

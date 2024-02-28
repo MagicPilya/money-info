@@ -3,7 +3,7 @@ import { createReducer } from "@reduxjs/toolkit";
 const userReducer = createReducer({}, (builder) => {
   builder
     .addCase("SET_CURRENT_USER", (state, action) => {
-      state.user =  action.payload;
+      state.user = action.payload;
     })
     .addCase("SET_ACTIVE_CURRENCY", (state, action) => {
       state.user.userInfo.currentCurrency = action.payload;
@@ -15,7 +15,7 @@ const userReducer = createReducer({}, (builder) => {
       state.user.userInfo.currentAccountIndex = index;
     })
     .addCase("ADD_CURRENCY", (state, action) => {
-      state.user.currency.currencies.push(action.payload);
+      state.user.currencies.currencies.push(action.payload);
     })
     .addCase("ADD_ACCOUNT", (state, action) => {
       const account = action.payload;
@@ -23,12 +23,12 @@ const userReducer = createReducer({}, (builder) => {
     })
     .addCase("DELETE_CURRENCY", (state, action) => {
       const currency = action.payload;
-      state.user.currency.currencies.map( (item, key) => {
+      state.user.currency.currencies.map((item, key) => {
         if (currency === item) {
           state.user.currency.currencies.splice(key, 1);
         }
         return null;
-      })
+      });
     })
     .addCase("RENAME_ACCOUNT", (state, action) => {
       const index = action.payload.index;
@@ -37,7 +37,7 @@ const userReducer = createReducer({}, (builder) => {
     })
     .addCase("DELETE_ACCOUNT", (state, action) => {
       const index = action.payload;
-      state.user.accounts.splice(index, 1)
+      state.user.accounts.splice(index, 1);
     })
     .addCase("CORRECT_ACCOUNT_BALANCE", (state, action) => {
       const newBalance = action.payload.newBalance;
@@ -65,8 +65,8 @@ const userReducer = createReducer({}, (builder) => {
         } else if (item.name === to) {
           state.user.accounts[index].totalMoney += +amount;
         }
-        return undefined
-      })
+        return undefined;
+      });
     })
     .addCase("ADD_OPERATION", (state, action) => {
       state.user.operations.push(action.payload);
@@ -74,25 +74,26 @@ const userReducer = createReducer({}, (builder) => {
     .addCase("EDIT_OPERATION", (state, action) => {
       const symbol = action.payload.finalObject.operationType;
       const newAmount = action.payload.finalObject.amount;
-      
+
       const operationIndex = state.user.operations.findIndex(
-        (item, index) => index === action.payload.operationID
+        (item, index) => index === action.payload.operationID,
       );
-      
+
       if (operationIndex !== -1) {
         const oldAmount = state.user.operations[operationIndex].amount;
-        
+
         state.user.operations[operationIndex] = action.payload.finalObject;
-        
-        const difference = symbol === "plus" ? newAmount - oldAmount : oldAmount - newAmount;
-        
+
+        const difference =
+          symbol === "plus" ? newAmount - oldAmount : oldAmount - newAmount;
+
         state.user.accounts.forEach((item, index) => {
           if (item.name === action.payload.finalObject.currentAccount) {
             state.user.accounts[index].totalMoney += difference;
           }
         });
       }
-    })
-})
+    });
+});
 
 export default userReducer;
