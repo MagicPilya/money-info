@@ -15,7 +15,7 @@ const userReducer = createReducer({}, (builder) => {
       state.user.userInfo.currentAccountIndex = index;
     })
     .addCase("ADD_CURRENCY", (state, action) => {
-      state.user.currencies.currencies.push(action.payload);
+      state.user.currencies.push(action.payload);
     })
     .addCase("ADD_ACCOUNT", (state, action) => {
       const account = action.payload;

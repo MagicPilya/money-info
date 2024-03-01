@@ -21,11 +21,11 @@ function MainPage(props) {
       await setLoading(false);
 
       // При добавлении элементов в коллекцию вызывать данную фичу при условии, что значение initial существует.
-      await deleteInitialValues(answer.user, "accounts");
-      await deleteInitialValues(answer.user, "categories");
-      await deleteInitialValues(answer.user, "creditors");
-      await deleteInitialValues(answer.user, "currencies");
-      await deleteInitialValues(answer.user, "operations");
+      // await deleteInitialValues(answer.user, "accounts");
+      // await deleteInitialValues(answer.user, "categories");
+      // await deleteInitialValues(answer.user, "creditors");
+      //
+      // await deleteInitialValues(answer.user, "operations");
     });
   }, [loading, dispatch]);
 

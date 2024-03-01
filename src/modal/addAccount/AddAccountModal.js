@@ -71,15 +71,27 @@ function AddAccountModal(props) {
   };
 
   const handleSubmitCurrency = async (currencyName) => {
-    let increment = 0;
-    if (currenciesList.length == 0) {
+    if (currenciesList.length === 0) {
+      await addCurrency(uid, currencyName, 0);
       await deleteInitialValues(userInfo.uid, "currencies");
+
+      dispatch({
+        type: "ADD_CURRENCY",
+        payload: { currencyName: currencyName },
+      });
+    } else {
+      let increment = 0;
+
+      for (let i = 0; i <= currenciesList.length; i++) {
+        increment = i;
+      }
+      await addCurrency(uid, currencyName, increment);
+
+      dispatch({
+        type: "ADD_CURRENCY",
+        payload: { currencyName: currencyName },
+      });
     }
-    for (let i = 0; i <= currenciesList.length; i++) {
-      increment = i;
-    }
-    await addCurrency(uid, currencyName, increment);
-    dispatch({ type: "ADD_CURRENCY", payload: currencyName });
   };
 
   const clearState = () => {
@@ -173,8 +185,12 @@ function AddAccountModal(props) {
                   onBlur={currency.onBlur}
                 >
                   {currenciesList.map((item, key) => (
-                    <MenuItem value={item} key={key} onClick={() => {}}>
-                      {item}
+                    <MenuItem
+                      value={item.currencyName}
+                      key={key}
+                      onClick={() => {}}
+                    >
+                      {item.currencyName}
                     </MenuItem>
                   ))}
 
