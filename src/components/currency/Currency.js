@@ -15,8 +15,12 @@ function Currency(props) {
   const uid = userInfo.uid;
   const currentCurrency = userInfo.currentCurrency;
   const currenciesList = user.currencies;
-  const totalMoney = userInfo.totalMoney;
-  const currentCurrencyIndex = userInfo.currentAccountIndex;
+  const accountsList = user.accounts;
+
+  let totalMoney = 0;
+  accountsList.forEach((item) => {
+    totalMoney += +item.totalMoney;
+  });
 
   const dispatch = useDispatch();
 
@@ -38,7 +42,7 @@ function Currency(props) {
   if (currenciesList.length > 0) {
     return (
       <div className="currency">
-        Всего: {`${totalMoney} В валюте`}
+        Всего: {`${totalMoney}`}
         <Button
           id="fade-button"
           aria-controls={open ? "fade-menu" : undefined}
@@ -68,9 +72,9 @@ function Currency(props) {
                 onClick={async () => {
                   dispatch({
                     type: "SET_ACTIVE_CURRENCY",
-                    payload: item,
+                    payload: item.currencyName,
                   });
-                  await setCurrentCurrency(uid, item);
+                  await setCurrentCurrency(uid, item.currencyName);
                   dispatch({
                     type: "SET_ACTIVE_CURRENCY_INDEX",
                     payload: key,
@@ -78,13 +82,13 @@ function Currency(props) {
                   await handleClose();
                 }}
               >
-                {item}
+                {item.currencyName}
               </p>
               <IconButton
                 aria-label="delete"
                 onClick={() => {
-                  if (item !== currentCurrency) {
-                    setCurrency(item);
+                  if (item.currencyName !== currentCurrency) {
+                    setCurrency(item.currencyName);
                     setOpenDialog(true);
                     handleClose();
                   }

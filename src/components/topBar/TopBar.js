@@ -3,20 +3,12 @@ import { MenuItem, Menu, Button, Fade } from "@mui/material";
 import { signAccountOut } from "../../firebase/auth";
 import Currency from "../currency/Currency";
 import AccountsList from "../accountsList/AccountsList";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { connect } from "react-redux";
 
 function TopBar(props) {
-  const {
-    name,
-    totalMoney,
-    currentCurrency,
-    currentCurrencyIndex,
-    uid,
-    currenciesList,
-    accounts,
-    currentAccount,
-    currentAccountIndex,
-  } = props;
+  const name = props.store.currentUser.user.userInfo.name;
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -38,7 +30,7 @@ function TopBar(props) {
         sx={{ fontSize: "20px" }}
       >
         {name}
-        <ExpandMoreIcon/>
+        <ExpandMoreIcon />
       </Button>
       <Menu
         id="account-menu"
@@ -62,25 +54,13 @@ function TopBar(props) {
       </Menu>
 
       <div className="topBar__currency">
-        <Currency
-          uid={uid}
-          totalMoney={totalMoney}
-          currentCurrency={currentCurrency}
-          currenciesList={currenciesList}
-          currentCurrencyIndex={currentCurrencyIndex}
-        />
+        <Currency />
       </div>
       <div className="topBar__account">
-        <AccountsList
-          uid={uid}
-          currentAccount={currentAccount}
-          accounts={accounts}
-          currenciesList={currenciesList}
-          currentAccountIndex={currentAccountIndex}
-        />
+        <AccountsList />
       </div>
     </div>
   );
 }
 
-export default TopBar;
+export default connect((state) => ({ store: state }))(TopBar);
