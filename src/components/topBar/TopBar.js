@@ -42,7 +42,6 @@ function TopBar(props) {
         onClose={handleClose}
         TransitionComponent={Fade}
       >
-        {/* <MenuItem onClick={handleClose}>Profile</MenuItem> */}
         <MenuItem
           onClick={async () => {
             await signAccountOut();

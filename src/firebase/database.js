@@ -7,7 +7,6 @@ import {
   getDocs,
   setDoc,
   updateDoc,
-  arrayUnion,
   arrayRemove,
   deleteDoc,
 } from "firebase/firestore";
@@ -46,6 +45,7 @@ export const addUser = async (name, email, userID) => {
     currentAccountIndex: null,
     currentCurrency: null,
     currentCurrencyIndex: null,
+    totalMoney: 0,
   });
   await setDoc(doc(db, "currencies", `${userID}`, "currencies", "initial"), {
     initial: "test",
@@ -274,7 +274,6 @@ export const increaseAccountMoney = async (
 ) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
   const newValue = +oldValue + +increaser;
-  let accounts;
   await updateDoc(docRef, {
     totalMoney: newValue,
   });
@@ -287,7 +286,6 @@ export const editOperation = async (
   accounts,
   operations,
 ) => {
-  console.log(accounts, operations);
   const newAmount = finalObject.amount;
   const oldAmount = operations[index].amount;
   const symbol = finalObject.operationType;
@@ -299,7 +297,13 @@ export const editOperation = async (
     if (item.name === finalObject.currentAccount) {
       increaseAccountMoney(userId, index, item.totalMoney, difference); // Тут хуйня
     }
+    return undefined;
   });
   const docRef = doc(db, "operations", userId, "operations", `${index}`);
   await updateDoc(docRef, finalObject);
+};
+
+export const editUserName = async (uid, newName) => {
+  const docRef = doc(db, "users", uid);
+  await updateDoc(docRef, newName);
 };

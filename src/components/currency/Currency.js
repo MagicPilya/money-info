@@ -19,7 +19,9 @@ function Currency(props) {
 
   let totalMoney = 0;
   accountsList.forEach((item) => {
-    totalMoney += +item.totalMoney;
+    totalMoney += !isNaN(parseFloat(item.totalMoney))
+      ? parseFloat(parseFloat(item.totalMoney).toFixed(2))
+      : undefined;
   });
 
   const dispatch = useDispatch();

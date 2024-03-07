@@ -39,11 +39,6 @@ const userReducer = createReducer({}, (builder) => {
       const index = action.payload;
       state.user.accounts.splice(index, 1);
     })
-    .addCase("CORRECT_ACCOUNT_BALANCE", (state, action) => {
-      const newBalance = action.payload.newBalance;
-      const index = action.payload.index;
-      state.user.accounts[index].totalMoney = newBalance;
-    })
     .addCase("SET_ACTIVE_CURRENCY_INDEX", (state, action) => {
       state.user.userInfo.currentCurrencyIndex = action.payload;
     })
@@ -93,7 +88,8 @@ const userReducer = createReducer({}, (builder) => {
           }
         });
       }
-    });
+    })
+    .addCase("CALCULATE_TOTAL_MONEY", (state, action) => {});
 });
 
 export default userReducer;

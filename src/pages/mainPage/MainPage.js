@@ -36,21 +36,7 @@ function MainPage(props) {
     return (
       <div className="mainPage">
         <div className="mainPage__topBar">
-          <TopBar
-            name={store.currentUser.user.userInfo.name}
-            totalMoney={store.currentUser.user.userInfo.totalMoney}
-            currentCurrency={store.currentUser.user.userInfo.currentCurrency}
-            currentCurrencyIndex={
-              store.currentUser.user.userInfo.currentCurrencyIndex
-            }
-            currenciesList={store.currentUser.user.currencies.currencies}
-            uid={store.currentUser.user.userInfo.uid}
-            accounts={store.currentUser.user.accounts}
-            currentAccount={store.currentUser.user.userInfo.currentAccount}
-            currentAccountIndex={
-              store.currentUser.user.userInfo.currentAccountIndex
-            }
-          ></TopBar>
+          <TopBar />
         </div>
         <div className="mainPage__workBox">
           <div className="mainPage__workBox-title">
