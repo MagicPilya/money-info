@@ -89,7 +89,11 @@ const userReducer = createReducer({}, (builder) => {
         });
       }
     })
-    .addCase("CALCULATE_TOTAL_MONEY", (state, action) => {});
+    .addCase("CORRECT_ACCOUNT_BALANCE", (state, action) => {
+      const newBalance = action.payload.newBalance;
+      const index = action.payload.index;
+      state.user.accounts[index].totalMoney = newBalance;
+    });
 });
 
 export default userReducer;
