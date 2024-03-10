@@ -80,11 +80,11 @@ function AccountsList(props) {
   const handleSubmitRename = async (newName) => {
     const index = getAccountIndex(currentAccount);
     await renameAccount(uid, index, newName);
+    await setCurrentAccount(uid, newName, index);
     dispatch({
       type: "RENAME_ACCOUNT",
       payload: { index: index, name: newName },
     });
-
     dispatch({
       type: "SET_ACTIVE_ACCOUNT",
       payload: { name: newName, index: getAccountIndex(currentAccount) },

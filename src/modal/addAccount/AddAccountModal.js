@@ -23,6 +23,7 @@ import {
   deleteInitialValues,
   setCurrentCurrency,
   setCurrentAccount,
+  setCurrentCurrencyIndex,
 } from "../../firebase/database";
 
 import AddSomeDataWithOneInput from "../addSomeDataWithOneInput/AddSomeDataWithOneInput";
@@ -77,7 +78,7 @@ function AddAccountModal(props) {
       await addCurrency(uid, currencyName, 0);
       await deleteInitialValues(userInfo.uid, "currencies");
       await setCurrentCurrency(uid, currencyName);
-      await setCurrentAccount(uid, accountInfo.name, 0);
+      await setCurrentCurrencyIndex(uid, 0);
       dispatch({
         type: "ADD_CURRENCY",
         payload: { currencyName: currencyName },
@@ -87,8 +88,8 @@ function AddAccountModal(props) {
         payload: currencyName,
       });
       dispatch({
-        type: "SET_ACTIVE_ACCOUNT",
-        payload: { name: accountInfo.name, index: 0 },
+        type: "SET_ACTIVE_CURRENCY_INDEX",
+        payload: 0,
       });
     } else {
       let increment = 0;
@@ -112,9 +113,18 @@ function AddAccountModal(props) {
   };
 
   const handleSubmitAccount = async () => {
-    dispatch({ type: "ADD_ACCOUNT", payload: accountInfo });
-
-    await addAccount(uid, accountInfo, accountsList.length);
+    if (accountsList.length === 0) {
+      await addAccount(uid, accountInfo, 0);
+      await setCurrentAccount(uid, accountInfo.name, 0);
+      dispatch({ type: "ADD_ACCOUNT", payload: accountInfo });
+      dispatch({
+        type: "SET_ACTIVE_ACCOUNT",
+        payload: { name: accountInfo.name, index: 0 },
+      });
+    } else {
+      dispatch({ type: "ADD_ACCOUNT", payload: accountInfo });
+      await addAccount(uid, accountInfo, accountsList.length);
+    }
     await clearState();
     await handleClose();
   };
