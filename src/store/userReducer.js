@@ -93,6 +93,9 @@ const userReducer = createReducer({}, (builder) => {
       const newBalance = action.payload.newBalance;
       const index = action.payload.index;
       state.user.accounts[index].totalMoney = newBalance;
+    })
+    .addCase("ADD_RETRIEVINGS_CATEGORY", (state, action) => {
+      state.user.categories.retrievings.push(action.payload);
     });
 });
 

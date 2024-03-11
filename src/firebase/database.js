@@ -303,6 +303,13 @@ export const editOperation = async (
   await updateDoc(docRef, finalObject);
 };
 
+export const addRetrievingsCategory = async (uid, categoryName, id) => {
+  const docRef = doc(db, "categories", `${uid}`, "retrievings", `${id}`);
+  await setDoc(docRef, {
+    categoryName,
+  });
+};
+
 export const editUserName = async (uid, newName) => {
   const docRef = doc(db, "users", uid);
   await updateDoc(docRef, newName);
