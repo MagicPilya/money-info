@@ -4,7 +4,7 @@ import { connect, useDispatch } from "react-redux";
 import { MenuItem, Menu, Button, Fade, IconButton } from "@mui/material";
 import { RemoveCircleOutline, ExpandMore } from "@mui/icons-material";
 
-import { setCurrentCurrency, deleteCurrency } from "../../firebase/database";
+import { setCurrentCurrency, deleteData } from "../../firebase/database";
 import PreDeleteDialog from "../../modal/info/PreDeleteDialog";
 
 function Currency(props) {
@@ -40,7 +40,7 @@ function Currency(props) {
   };
 
   const handleDelete = async () => {
-    await deleteCurrency(uid, currency);
+    await deleteData(uid, currency);
     dispatch({ type: "DELETE_CURRENCY", payload: currency });
   };
   if (currenciesList.length > 0) {

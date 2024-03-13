@@ -15,7 +15,6 @@ import { connect, useDispatch } from "react-redux";
 import {
   increaseAccountMoney,
   addRetrievingsCategory,
-  deleteCurrency,
 } from "../../firebase/database";
 import AddSomeDataWithOneInput from "../../modal/addSomeDataWithOneInput/AddSomeDataWithOneInput";
 import React, { useState } from "react";

@@ -20,7 +20,7 @@ import {
 import {
   addAccount,
   addCurrency,
-  deleteInitialValues,
+  deleteData,
   setCurrentCurrency,
   setCurrentAccount,
   setCurrentCurrencyIndex,
@@ -75,8 +75,7 @@ function AddAccountModal(props) {
 
   const handleSubmitCurrency = async (currencyName) => {
     if (currenciesList.length === 0) {
-      await addCurrency(uid, currencyName, 0);
-      await deleteInitialValues(userInfo.uid, "currencies");
+      await addCurrency(uid, currencyName, `${0}`);
       await setCurrentCurrency(uid, currencyName);
       await setCurrentCurrencyIndex(uid, 0);
       dispatch({

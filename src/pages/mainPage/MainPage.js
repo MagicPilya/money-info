@@ -4,12 +4,12 @@ import { useDispatch } from "react-redux";
 import { connect } from "react-redux";
 import { Skeleton, Typography } from "@mui/material";
 import TopBar from "../../components/topBar/TopBar";
-import { deleteInitialValues } from "../../firebase/database.js";
 import { setUserInfo } from "../../utils/setUserInfo";
 import OperationCard from "../../components/operationCard/OperationCard";
 
 function MainPage(props) {
   const store = props.store;
+
   const [loading = true, setLoading] = useState();
   const dispatch = useDispatch();
   // eslint-disable-next-line
@@ -31,7 +31,7 @@ function MainPage(props) {
       </>
     );
   } else if (!loading) {
-    const user = props.store.currentUser.user;
+    const user = store.currentUser.user;
     const operations = user.operations;
     return (
       <div className="mainPage">
