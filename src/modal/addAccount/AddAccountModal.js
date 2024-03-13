@@ -20,7 +20,6 @@ import {
 import {
   addAccount,
   addCurrency,
-  deleteData,
   setCurrentCurrency,
   setCurrentAccount,
   setCurrentCurrencyIndex,

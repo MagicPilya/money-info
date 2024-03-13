@@ -8,6 +8,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  addDoc,
 } from "firebase/firestore";
 const db = getFirestore(app);
 
@@ -22,14 +23,29 @@ export const setPath = async (uid) => {
   });
 };
 
-export const deleteData = async (uid, subject, index = 0) => {
+export const deleteData = async (uid, subject, index = `${0}`) => {
   const docRef = doc(db, subject, uid, subject, `${index}`);
-  const docRefInitial = doc(db, subject, uid, subject, "initial");
-  if (subject === "initial") {
-    await deleteDoc(docRefInitial);
-  } else {
-    await deleteDoc(docRef);
-  }
+  await deleteDoc(docRef);
+};
+
+export const reindexAndSave = async (uid, subject) => {
+  // Получаем все оставшиеся элементы
+  const querySnapshot = await getDocs(collection(db, subject, uid, subject));
+
+  // Удаляем все элементы
+  await Promise.all(
+    querySnapshot.docs.map(async (doc) => {
+      await deleteDoc(doc.ref);
+    }),
+  );
+
+  // Создаем новые документы с последовательными индексами
+  await Promise.all(
+    querySnapshot.docs.map(async (document, index) => {
+      const data = document.data(); // Получаем данные из исходного документа
+      await setDoc(doc(db, subject, uid, subject, `${index}`), data); // Добавляем данные в новую коллекцию с индексом
+    }),
+  );
 };
 export const addUser = async (name, email, userID) => {
   await setDoc(doc(db, "users", `${userID}`), {
@@ -42,21 +58,6 @@ export const addUser = async (name, email, userID) => {
     currentCurrencyIndex: null,
     totalMoney: 0,
   });
-  // await setDoc(doc(db, "currencies", `${userID}`, "currencies", "initial"), {
-  //   initial: "test",
-  // });
-  // await setDoc(doc(db, "accounts", `${userID}`, "accounts", "initial"), {
-  //   initial: "test",
-  // });
-  // await setDoc(doc(db, "categories", `${userID}`, "categories", "initial"), {
-  //   initial: "test",
-  // });
-  // await setDoc(doc(db, "creditors", `${userID}`, "creditors", "initial"), {
-  //   initial: "test",
-  // });
-  // await setDoc(doc(db, "operations", `${userID}`, "operations", "initial"), {
-  //   initial: "test",
-  // });
 };
 
 export const getUser = async (userID) => {
@@ -150,7 +151,6 @@ export const setCurrentAccount = async (userId, currentAccount, index) => {
 
 export const addCurrency = async (userId, currency, id) => {
   const docRef = doc(db, "currencies", `${userId}`, "currencies", `${id}`);
-  console.log("wtf" + "|" + id + "|" + userId);
   await setDoc(docRef, {
     currencyName: currency,
   });
@@ -170,11 +170,6 @@ export const renameAccount = async (userId, index, newName) => {
   await updateDoc(docRef, {
     name: newName,
   });
-};
-
-export const deleteAccount = async (userId, index) => {
-  const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
-  await deleteDoc(docRef);
 };
 
 export const correctBalance = async (userId, index, newBalance) => {
@@ -302,9 +297,4 @@ export const addRetrievingsCategory = async (uid, categoryName, id) => {
 export const editUserName = async (uid, newName) => {
   const docRef = doc(db, "users", uid);
   await updateDoc(docRef, newName);
-};
-
-export const deleteCategory = async (userId, index) => {
-  const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
-  await deleteDoc(docRef);
 };

@@ -16,8 +16,9 @@ import {
 import {
   setCurrentAccount,
   renameAccount,
-  deleteAccount,
+  deleteData,
   correctBalance,
+  reindexAndSave,
 } from "../../firebase/database";
 import AddSomeDataWithOneInput from "../../modal/addSomeDataWithOneInput/AddSomeDataWithOneInput";
 import AddAccountModal from "../../modal/addAccount/AddAccountModal";
@@ -114,11 +115,12 @@ function AccountsList(props) {
         index: +(currentAccountIndex + 1),
       },
     });
-    await deleteAccount(uid, currentAccountIndex);
+    await deleteData(uid, "accounts", `${currentAccountIndex}`);
     dispatch({
       type: "DELETE_ACCOUNT",
       payload: currentAccountIndex,
     });
+    await reindexAndSave(uid, "accounts");
   };
 
   function getNextAccountName() {
