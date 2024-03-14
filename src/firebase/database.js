@@ -8,7 +8,6 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
-  addDoc,
 } from "firebase/firestore";
 const db = getFirestore(app);
 
@@ -21,11 +20,6 @@ export const setPath = async (uid) => {
       }
     });
   });
-};
-
-export const deleteData = async (uid, subject, index = `${0}`) => {
-  const docRef = doc(db, subject, uid, subject, `${index}`);
-  await deleteDoc(docRef);
 };
 
 export const reindexAndSave = async (uid, subject) => {
@@ -46,6 +40,12 @@ export const reindexAndSave = async (uid, subject) => {
       await setDoc(doc(db, subject, uid, subject, `${index}`), data); // Добавляем данные в новую коллекцию с индексом
     }),
   );
+};
+
+export const deleteData = async (uid, subject, index = `${0}`) => {
+  const docRef = doc(db, subject, uid, subject, `${index}`);
+  await deleteDoc(docRef);
+  await reindexAndSave(uid, subject);
 };
 export const addUser = async (name, email, userID) => {
   await setDoc(doc(db, "users", `${userID}`), {

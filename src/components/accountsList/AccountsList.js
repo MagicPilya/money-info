@@ -10,7 +10,6 @@ import {
   Percent,
   Timeline,
   CreditCardOff,
-  BreakfastDiningOutlined,
 } from "@mui/icons-material";
 
 import {
@@ -18,7 +17,6 @@ import {
   renameAccount,
   deleteData,
   correctBalance,
-  reindexAndSave,
 } from "../../firebase/database";
 import AddSomeDataWithOneInput from "../../modal/addSomeDataWithOneInput/AddSomeDataWithOneInput";
 import AddAccountModal from "../../modal/addAccount/AddAccountModal";
@@ -100,9 +98,15 @@ function AccountsList(props) {
     });
   };
 
-  // У dispatch были await, если сломается - верни
   const handleDelete = async () => {
-    const name = getNextAccountName();
+    await deleteData(uid, "accounts", `${currentAccountIndex}`).then(() => {});
+    dispatch({
+      type: "DELETE_ACCOUNT",
+      payload: currentAccountIndex,
+    });
+    if (accounts.length === 0) {
+      console.log("CRAZY");
+    }
     await setCurrentAccount(
       uid,
       getNextAccountName(),
@@ -111,24 +115,22 @@ function AccountsList(props) {
     dispatch({
       type: "SET_ACTIVE_ACCOUNT",
       payload: {
-        name: `${name}`,
+        name: `${getNextAccountName()}`,
         index: +(currentAccountIndex + 1),
       },
     });
-    await deleteData(uid, "accounts", `${currentAccountIndex}`);
-    dispatch({
-      type: "DELETE_ACCOUNT",
-      payload: currentAccountIndex,
-    });
-    await reindexAndSave(uid, "accounts");
   };
 
   function getNextAccountName() {
-    for (let i = 0; i < accounts.length; i++) {
-      if (accounts[i].name === currentAccount && i === 0) {
-        return accounts[i + 1].name;
-      } else {
-        return accounts[0].name;
+    if (accounts.length === 0) {
+      return null;
+    } else {
+      for (let i = 0; i < accounts.length; i++) {
+        if (accounts[i].name === currentAccount && i === 0) {
+          return accounts[i + 1].name;
+        } else {
+          return accounts[0].name;
+        }
       }
     }
   }
@@ -139,6 +141,7 @@ function AccountsList(props) {
       if (item.name === accountName) {
         index = i;
       }
+      return undefined;
     });
     return index;
   }
