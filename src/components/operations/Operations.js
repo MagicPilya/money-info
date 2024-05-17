@@ -6,25 +6,34 @@ import Debts from "./Debts";
 import { connect } from "react-redux";
 
 function Operations(props) {
-  const { operationName, setCloseModal, uid, currentAccountIndex, oldValueOfTotalMoney } = props;
+  const {
+    operationName,
+    setCloseModal,
+    currentAccountIndex,
+    oldValueOfTotalMoney,
+  } = props;
+
   const user = props.store.currentUser.user;
-  const currentAccount = user.userInfo.currentAccount;
+  const userInfo = user.userInfo;
   const categories = user.categories;
+  const currentAccount = userInfo.currentAccount;
   const costs = categories.costs;
   const retrievings = categories.retrievings;
   const accounts = user.accounts;
+  const uid = userInfo.uid;
 
   switch (operationName) {
     case "Cost":
-      return <Costs
-        costs={costs}
-        currentAccount={currentAccount}
-        setCloseModal={setCloseModal}
-        uid={uid}
-        currentAccountIndex={currentAccountIndex}
-        oldValueOfTotalMoney={oldValueOfTotalMoney}
-
-      />;
+      return (
+        <Costs
+          costs={costs}
+          currentAccount={currentAccount}
+          setCloseModal={setCloseModal}
+          uid={uid}
+          currentAccountIndex={currentAccountIndex}
+          oldValueOfTotalMoney={oldValueOfTotalMoney}
+        />
+      );
     case "Retrieving":
       return (
         <Retrievings
@@ -46,11 +55,7 @@ function Operations(props) {
         />
       );
     case "Debt":
-      return (
-        <Debts
-          typeOfOperation={"Add"}
-          
-        />);
+      return <Debts typeOfOperation={"Add"} />;
     default:
       return (
         <Skeleton
@@ -62,4 +67,4 @@ function Operations(props) {
   }
 }
 
-export default connect((state) => ({store: state}))(Operations);
+export default connect((state) => ({ store: state }))(Operations);

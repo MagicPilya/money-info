@@ -20,6 +20,7 @@ function TopBar(props) {
 
   return (
     <div className="topBar">
+      {/* Кнопка взаимодействия с аккаунтом */}
       <Button
         id="account-button"
         aria-controls={open ? "account-menu" : undefined}

@@ -7,32 +7,18 @@ import RegistrationPage from "../pages/authPages/registrationPage/RegistrationPa
 import "./App.scss";
 
 const App = () => {
+  // eslint-disable-next-line
   const [user, setUser] = useState();
 
-  useEffect(()=> {
-    document.title="Money-info"
-  }, [])
+  useEffect(() => {
+    document.title = "Money-info";
+  }, []);
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={<MainPage
-          setUser={setUser} />}
-      />
-      <Route
-        path="/sign-in"
-        element={
-          <LoginPage/>
-        }
-      />
-      <Route
-        path="/sign-up"
-        element={
-          <RegistrationPage
-          />
-        }
-      />
+      <Route path="/" element={<MainPage setUser={setUser} />} />
+      <Route path="/sign-in" element={<LoginPage />} />
+      <Route path="/sign-up" element={<RegistrationPage />} />
     </Routes>
   );
 };

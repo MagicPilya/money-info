@@ -8,7 +8,6 @@ import {
   Typography,
   Alert,
   IconButton,
-  Menu,
 } from "@mui/material";
 import { useInput } from "../../hooks/useInput";
 import { connect, useDispatch } from "react-redux";
@@ -17,14 +16,13 @@ import {
   addRetrievingsCategory,
 } from "../../firebase/database";
 import AddSomeDataWithOneInput from "../../modal/addSomeDataWithOneInput/AddSomeDataWithOneInput";
-import React, { useState } from "react";
+import React from "react";
 import { RemoveCircleOutline } from "@mui/icons-material";
-import PreDeleteDialog from "../../modal/info/PreDeleteDialog";
 
+// Стили
 const textFieldStyle = {
   width: "300px",
 };
-
 const selectStyle = {
   width: "300px",
 };
@@ -44,36 +42,38 @@ function Retrievings(props) {
   const currentAccountIndex = userInfo.currentAccountIndex;
   const uid = userInfo.uid;
   const dispatch = useDispatch();
-  const [openDialog, setOpenDialog] = useState(false);
 
   const retrievingsAmount = useInput("", { isEmpty: true, isNegative: true });
   const categoryName = useInput("", { isEmpty: true });
   const date = useInput("", { isEmpty: true });
   const comment = useInput("", { isEmpty: true, maxLength: 50 });
 
+  // Отправка формы
   const handleSubmit = async () => {
+    // Увеличение баланса
     await increaseAccountMoney(
       uid,
       currentAccountIndex,
       oldValueOfTotalMoney,
-      retrievingsAmount.value,
+      retrievingsAmount.value
     );
     dispatch({
       type: "INCREASE_ACCOUNT_MONEY",
       payload: retrievingsAmount.value,
     });
+
+    // Сохранение категории
+
     setCloseModal(false);
   };
 
+  // Добавление категории доходов
   const handleSubmitRetrievings = async (retrievingsName) => {
     await addRetrievingsCategory(uid, retrievingsName, retrievings.length);
     dispatch({
       type: "ADD_RETRIEVINGS_CATEGORY",
       payload: { categoryName: retrievingsName },
     });
-  };
-  const handleDelete = async () => {
-    console.log("crazy bitch");
   };
 
   return (
@@ -140,12 +140,6 @@ function Retrievings(props) {
                   </IconButton>
                 </MenuItem>
               ))}
-              <PreDeleteDialog
-                handleAction={handleDelete}
-                trigger={openDialog}
-                triggerSetter={setOpenDialog}
-                title="категорию доходов"
-              />
             </Select>
           </FormControl>
         </div>

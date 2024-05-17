@@ -4,12 +4,14 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem, Alert, Typography,
+  MenuItem,
+  Alert,
+  Typography,
 } from "@mui/material";
-import {useInput} from "../../hooks/useInput";
+import { useInput } from "../../hooks/useInput";
 import React from "react";
-import {useDispatch} from "react-redux";
-import {decreaseAccountMoney} from "../../firebase/database";
+import { useDispatch } from "react-redux";
+import { decreaseAccountMoney } from "../../firebase/database";
 
 const textFieldStyle = {
   width: "300px",
@@ -20,29 +22,39 @@ const selectStyle = {
 };
 
 export default function Costs(props) {
-  const { costs, setCloseModal, uid, currentAccountIndex, oldValueOfTotalMoney } = props;
+  const {
+    costs,
+    setCloseModal,
+    uid,
+    currentAccountIndex,
+    oldValueOfTotalMoney,
+  } = props;
   const dispatch = useDispatch();
 
-  const costsAmount = useInput('', {isEmpty: true, isNegative: true});
-  const categoryName = useInput('', {isEmpty: true});
-  const date = useInput('', {isEmpty: true});
-  const comment = useInput('', {isEmpty: true, maxLength: 50});
+  const costsAmount = useInput("", { isEmpty: true, isNegative: true });
+  const categoryName = useInput("", { isEmpty: true });
+  const date = useInput("", { isEmpty: true });
+  const comment = useInput("", { isEmpty: true, maxLength: 50 });
 
   const handleSubmit = async () => {
-    await decreaseAccountMoney(uid, currentAccountIndex, oldValueOfTotalMoney, costsAmount.value)
-    dispatch({type: "DECREASE_ACCOUNT_MONEY", payload: costsAmount.value});
+    await decreaseAccountMoney(
+      uid,
+      currentAccountIndex,
+      oldValueOfTotalMoney,
+      costsAmount.value
+    );
+    dispatch({ type: "DECREASE_ACCOUNT_MONEY", payload: costsAmount.value });
     setCloseModal(false); // Для закрытия модалки
+  };
 
-  }
-
-  function composeCostsData (amount, category, date, comment) {
-    return {
-      costsAmount: amount,
-      categoryName: category,
-      date: date,
-      comment: comment,
-    }
-  }
+  // function composeCostsData (amount, category, date, comment) {
+  //   return {
+  //     costsAmount: amount,
+  //     categoryName: category,
+  //     date: date,
+  //     comment: comment,
+  //   }
+  // }
 
   return (
     <div className="operations__costs">
@@ -50,21 +62,20 @@ export default function Costs(props) {
         className="operations__costs-form"
         id="operations-costs-form"
         onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
-      }}>
-
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
         <Typography variant="h4" gutterBottom component="h4">
           Добавить расход
         </Typography>
         <div className="operations__costs-form-input">
-          {((costsAmount.isDirty) && (
-            costsAmount.isEmpty ||
-            costsAmount.isNegative)) && (
-            <Alert
-              severity="warning"
-              variant="filled">{costsAmount.textError}
-            </Alert>)}
+          {costsAmount.isDirty &&
+            (costsAmount.isEmpty || costsAmount.isNegative) && (
+              <Alert severity="warning" variant="filled">
+                {costsAmount.textError}
+              </Alert>
+            )}
           <TextField
             sx={textFieldStyle}
             value={costsAmount.value}
@@ -77,13 +88,12 @@ export default function Costs(props) {
         </div>
 
         <div className="operations__costs-form-input">
-          {((categoryName.isDirty) &&
-            categoryName.isEmpty) && (
-            <Alert
-              severity="warning"
-              variant="filled">{categoryName.textError}
-            </Alert>)}
-          <FormControl sx={selectStyle} >
+          {categoryName.isDirty && categoryName.isEmpty && (
+            <Alert severity="warning" variant="filled">
+              {categoryName.textError}
+            </Alert>
+          )}
+          <FormControl sx={selectStyle}>
             <InputLabel id="operations__costs-form-selectCategory-label">
               Категория
             </InputLabel>
@@ -108,12 +118,11 @@ export default function Costs(props) {
           className="operations__costs-form-input"
           children="operations-costs-date"
         >
-          {((date.isDirty) &&
-            date.isEmpty) && (
-            <Alert
-              severity="warning"
-              variant="filled">{date.textError}
-            </Alert>)}
+          {date.isDirty && date.isEmpty && (
+            <Alert severity="warning" variant="filled">
+              {date.textError}
+            </Alert>
+          )}
           <TextField
             sx={textFieldStyle}
             id="operations-costs-date"
@@ -129,13 +138,11 @@ export default function Costs(props) {
           />
         </div>
         <div className="operations__costs-form-input">
-          {((comment.isDirty) && (
-            comment.isEmpty ||
-            comment.maxLengthError)) && (
-            <Alert
-              severity="warning"
-              variant="filled">{comment.textError}
-            </Alert>)}
+          {comment.isDirty && (comment.isEmpty || comment.maxLengthError) && (
+            <Alert severity="warning" variant="filled">
+              {comment.textError}
+            </Alert>
+          )}
           <TextField
             sx={textFieldStyle}
             label="Комментарий"
@@ -149,8 +156,15 @@ export default function Costs(props) {
         <div className="operations__costs-form-input">
           <Button
             type="submit"
-            disabled={ !costsAmount.inputValid || !categoryName.inputValid || !date.inputValid || !comment.inputValid}
-          >Подтвердить</Button>
+            disabled={
+              !costsAmount.inputValid ||
+              !categoryName.inputValid ||
+              !date.inputValid ||
+              !comment.inputValid
+            }
+          >
+            Подтвердить
+          </Button>
         </div>
       </form>
     </div>
