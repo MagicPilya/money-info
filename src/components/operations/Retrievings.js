@@ -7,7 +7,6 @@ import {
   MenuItem,
   Typography,
   Alert,
-  IconButton,
 } from "@mui/material";
 import { useInput } from "../../hooks/useInput";
 import { connect, useDispatch } from "react-redux";
@@ -17,7 +16,8 @@ import {
 } from "../../firebase/database";
 import AddSomeDataWithOneInput from "../../modal/addSomeDataWithOneInput/AddSomeDataWithOneInput";
 import React from "react";
-import { RemoveCircleOutline } from "@mui/icons-material";
+import setFinalObjectFromInputs from "../../utils/setFinalObjectFromInputs";
+import { setOperation } from "../../firebase/database";
 
 // Стили
 const textFieldStyle = {
@@ -41,7 +41,10 @@ function Retrievings(props) {
   const retrievings = user.categories.retrievings;
   const currentAccountIndex = userInfo.currentAccountIndex;
   const uid = userInfo.uid;
+  const currentAccount = userInfo.currentAccount;
+  const currentCurrency = userInfo.currentCurrency;
   const dispatch = useDispatch();
+  const operations = user.operations;
 
   const retrievingsAmount = useInput("", { isEmpty: true, isNegative: true });
   const categoryName = useInput("", { isEmpty: true });
@@ -63,6 +66,21 @@ function Retrievings(props) {
     });
 
     // Сохранение категории
+    setFinalObjectFromInputs(
+      "Доход",
+      currentAccount,
+      comment.value,
+      date.value,
+      "plus",
+      retrievingsAmount.value,
+      currentCurrency
+    ).then(async (resObject) => {
+      dispatch({
+        type: "ADD_OPERATION",
+        payload: resObject,
+      });
+      await setOperation(uid, operations.length, resObject);
+    });
 
     setCloseModal(false);
   };
@@ -135,9 +153,6 @@ function Retrievings(props) {
               {retrievings.map((item, key) => (
                 <MenuItem value={item.categoryName} key={key}>
                   {item.categoryName}
-                  <IconButton aria-label="delete" onClick={() => {}}>
-                    <RemoveCircleOutline />
-                  </IconButton>
                 </MenuItem>
               ))}
             </Select>

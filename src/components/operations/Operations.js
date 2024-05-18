@@ -15,10 +15,7 @@ function Operations(props) {
 
   const user = props.store.currentUser.user;
   const userInfo = user.userInfo;
-  const categories = user.categories;
   const currentAccount = userInfo.currentAccount;
-  const costs = categories.costs;
-  const retrievings = categories.retrievings;
   const accounts = user.accounts;
   const uid = userInfo.uid;
 
@@ -26,21 +23,14 @@ function Operations(props) {
     case "Cost":
       return (
         <Costs
-          costs={costs}
-          currentAccount={currentAccount}
           setCloseModal={setCloseModal}
-          uid={uid}
-          currentAccountIndex={currentAccountIndex}
           oldValueOfTotalMoney={oldValueOfTotalMoney}
         />
       );
     case "Retrieving":
       return (
         <Retrievings
-          retrievings={retrievings}
           setCloseModal={setCloseModal}
-          uid={uid}
-          currentAccountIndex={currentAccountIndex}
           oldValueOfTotalMoney={oldValueOfTotalMoney}
         />
       );
@@ -55,7 +45,7 @@ function Operations(props) {
         />
       );
     case "Debt":
-      return <Debts typeOfOperation={"Add"} />;
+      return <Debts typeOfOperation={"Add"} setCloseModal={setCloseModal} />;
     default:
       return (
         <Skeleton

@@ -10,13 +10,15 @@ import {
   Typography,
 } from "@mui/material";
 import { useInput } from "../../hooks/useInput";
-import { useDispatch } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { findDataOfAccount } from "../../utils/arraysOperations";
 import {
   decreaseAccountMoney,
   increaseAccountMoney,
 } from "../../firebase/database";
+import { setOperation } from "../../firebase/database";
 
+import setFinalObjectFromInputs from "../../utils/setFinalObjectFromInputs";
 const selectStyle = {
   width: "300px",
 };
@@ -24,11 +26,20 @@ const selectStyle = {
 const textFieldStyle = {
   width: "300px",
 };
-export default function Transfers(props) {
-  const { accounts, currentAccount, uid, currentAccountIndex } = props;
+function Transfers(props) {
+  const { accounts, currentAccount } = props;
   const dispatch = useDispatch();
   const transferDirection = useInput("", { isEmpty: true });
   const transferSum = useInput("", { isEmpty: true, isNegative: true });
+
+  const store = props.store;
+  const user = store.currentUser.user;
+  const userInfo = user.userInfo;
+
+  const uid = userInfo.uid;
+  const currentAccountIndex = userInfo.currentAccountIndex;
+  const currentCurrency = userInfo.currentCurrency;
+  const operations = user.operations;
 
   let currentAccountCurrency = "";
   accounts.map((item) => {
@@ -68,6 +79,37 @@ export default function Transfers(props) {
         to: transferDirection.value,
         amount: +transferSum.value,
       },
+    });
+
+    // eslint-disable-next-line
+    Date.prototype.today = function () {
+      return (
+        (this.getDate() < 10 ? "0" : "") +
+        this.getDate() +
+        "/" +
+        (this.getMonth() + 1 < 10 ? "0" : "") +
+        (this.getMonth() + 1) +
+        "/" +
+        this.getFullYear()
+      );
+    };
+    const today = Date(Date.today);
+
+    // Сохранение операции
+    setFinalObjectFromInputs(
+      "Перевод",
+      currentAccount,
+      transferDirection.value,
+      today,
+      "minus",
+      transferSum.value,
+      currentCurrency
+    ).then(async (resObject) => {
+      dispatch({
+        type: "ADD_OPERATION",
+        payload: resObject,
+      });
+      await setOperation(uid, operations.length, resObject);
     });
   };
   return (
@@ -146,3 +188,4 @@ export default function Transfers(props) {
     </div>
   );
 }
+export default connect((state) => ({ store: state }))(Transfers);

@@ -71,7 +71,7 @@ const userReducer = createReducer({}, (builder) => {
       const newAmount = action.payload.finalObject.amount;
 
       const operationIndex = state.user.operations.findIndex(
-        (item, index) => index === action.payload.operationID,
+        (item, index) => index === action.payload.operationID
       );
 
       if (operationIndex !== -1) {
@@ -96,6 +96,12 @@ const userReducer = createReducer({}, (builder) => {
     })
     .addCase("ADD_RETRIEVINGS_CATEGORY", (state, action) => {
       state.user.categories.retrievings.push(action.payload);
+    })
+    .addCase("ADD_COSTS_CATEGORY", (state, action) => {
+      state.user.categories.costs.push(action.payload);
+    })
+    .addCase("ADD_CREDITOR", (state, action) => {
+      state.user.creditors.push(action.payload);
     });
 });
 

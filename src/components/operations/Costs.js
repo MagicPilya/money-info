@@ -10,8 +10,12 @@ import {
 } from "@mui/material";
 import { useInput } from "../../hooks/useInput";
 import React from "react";
-import { useDispatch } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { decreaseAccountMoney } from "../../firebase/database";
+import { addCostsCategory } from "../../firebase/database";
+import AddSomeDataWithOneInput from "../../modal/addSomeDataWithOneInput/AddSomeDataWithOneInput";
+import setFinalObjectFromInputs from "../../utils/setFinalObjectFromInputs";
+import { setOperation } from "../../firebase/database";
 
 const textFieldStyle = {
   width: "300px",
@@ -21,20 +25,30 @@ const selectStyle = {
   width: "300px",
 };
 
-export default function Costs(props) {
-  const {
-    costs,
-    setCloseModal,
-    uid,
-    currentAccountIndex,
-    oldValueOfTotalMoney,
-  } = props;
+function Costs(props) {
+  const { setCloseModal, oldValueOfTotalMoney } = props;
   const dispatch = useDispatch();
+
+  const store = props.store;
+  const user = store.currentUser.user;
+  const userInfo = user.userInfo;
+
+  const costs = user.categories.costs;
+  const currentAccountIndex = userInfo.currentAccountIndex;
+  const currentAccount = userInfo.currentAccount;
+  const currentCurrency = userInfo.currentCurrency;
+  const operations = user.operations;
 
   const costsAmount = useInput("", { isEmpty: true, isNegative: true });
   const categoryName = useInput("", { isEmpty: true });
   const date = useInput("", { isEmpty: true });
   const comment = useInput("", { isEmpty: true, maxLength: 50 });
+  const uid = user.userInfo.uid;
+
+  const transmittedValueCosts = useInput("", {
+    isEmpty: true,
+    maxLength: 16,
+  });
 
   const handleSubmit = async () => {
     await decreaseAccountMoney(
@@ -45,16 +59,33 @@ export default function Costs(props) {
     );
     dispatch({ type: "DECREASE_ACCOUNT_MONEY", payload: costsAmount.value });
     setCloseModal(false); // Для закрытия модалки
+
+    // Сохранение операции
+    setFinalObjectFromInputs(
+      "Расход",
+      currentAccount,
+      comment.value,
+      date.value,
+      "minus",
+      costsAmount.value,
+      currentCurrency
+    ).then(async (resObject) => {
+      dispatch({
+        type: "ADD_OPERATION",
+        payload: resObject,
+      });
+      await setOperation(uid, operations.length, resObject);
+    });
   };
 
-  // function composeCostsData (amount, category, date, comment) {
-  //   return {
-  //     costsAmount: amount,
-  //     categoryName: category,
-  //     date: date,
-  //     comment: comment,
-  //   }
-  // }
+  // Добавление категории расходов
+  const handleSubmitCosts = async (costsName) => {
+    await addCostsCategory(uid, costsName, costs.length);
+    dispatch({
+      type: "ADD_COSTS_CATEGORY",
+      payload: { categoryName: costsName },
+    });
+  };
 
   return (
     <div className="operations__costs">
@@ -105,9 +136,16 @@ export default function Costs(props) {
               onChange={categoryName.onChange}
               onBlur={categoryName.onBlur}
             >
+              <AddSomeDataWithOneInput
+                transmittedValue={transmittedValueCosts}
+                triggerName="Добавить категорию расходов"
+                title="Добавление категории расходов"
+                handleSubmit={handleSubmitCosts}
+                placeholder="Название категории"
+              />
               {costs.map((item, key) => (
-                <MenuItem value={item.name} key={key}>
-                  {item.name}
+                <MenuItem value={item.categoryName} key={key}>
+                  {item.categoryName}
                 </MenuItem>
               ))}
             </Select>
@@ -170,3 +208,4 @@ export default function Costs(props) {
     </div>
   );
 }
+export default connect((state) => ({ store: state }))(Costs);

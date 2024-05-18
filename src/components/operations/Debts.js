@@ -19,6 +19,8 @@ import {
 import { connect, useDispatch } from "react-redux";
 import setFinalObjectFromInputs from "../../utils/setFinalObjectFromInputs";
 import { findDataOfAccount } from "../../utils/arraysOperations";
+import AddSomeDataWithOneInput from "../../modal/addSomeDataWithOneInput/AddSomeDataWithOneInput";
+import { addCreditors } from "../../firebase/database";
 
 const selectStyle = {
   width: "350px",
@@ -36,6 +38,7 @@ const Debts = (props) => {
     oldOperationType,
     oldAmount,
     operationID,
+    setCloseModal,
   } = props;
 
   const dispatch = useDispatch();
@@ -61,6 +64,10 @@ const Debts = (props) => {
     isEmpty: true,
     isNegative: true,
     maxValue: { finalNumber: +oldValueOfTotalMoney, areYouSure: isValid },
+  });
+  const transmittedValueDebts = useInput("", {
+    isEmpty: true,
+    maxLength: 16,
   });
 
   useEffect(() => {
@@ -116,6 +123,27 @@ const Debts = (props) => {
       }
     }
   };
+  const handleSubmit = async (e) => {
+    await setFinalObjectFromInputs(
+      "Долги",
+      currentAccount,
+      creditorName.value,
+      dateTime,
+      typeOfDebt.value,
+      +sumOfDebt.value,
+      currentCurrency
+    ).then(async (answer) => await handleSetOperation(answer));
+    setCloseModal(false); // Для закрытия модалки
+  };
+
+  // Добавление Кредитора
+  const handleSubmitDebts = async (creditorName) => {
+    await addCreditors(uid, creditorName, creditors.length);
+    dispatch({
+      type: "ADD_CREDITOR",
+      payload: { creditorName },
+    });
+  };
   // eslint-disable-next-line
   Date.prototype.today = function () {
     return (
@@ -139,16 +167,7 @@ const Debts = (props) => {
         noValidate={true}
         onSubmit={async (e) => {
           e.preventDefault();
-
-          await setFinalObjectFromInputs(
-            "Долги",
-            currentAccount,
-            creditorName.value,
-            dateTime,
-            typeOfDebt.value,
-            +sumOfDebt.value,
-            currentCurrency
-          ).then(async (answer) => await handleSetOperation(answer));
+          handleSubmit();
         }}
       >
         <Typography variant="h4" gutterBottom component="h4">
@@ -205,9 +224,16 @@ const Debts = (props) => {
               onChange={creditorName.onChange}
               onBlur={creditorName.onBlur}
             >
+              <AddSomeDataWithOneInput
+                transmittedValue={transmittedValueDebts}
+                triggerName="Добавить кредитора"
+                title="Добавление кредитора"
+                handleSubmit={handleSubmitDebts}
+                placeholder="Имя кредитора"
+              />
               {creditors.map((item, key) => (
-                <MenuItem key={key} value={item}>
-                  {item}
+                <MenuItem key={key} value={item.creditorName}>
+                  {item.creditorName}
                 </MenuItem>
               ))}
             </Select>

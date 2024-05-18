@@ -30,7 +30,7 @@ export const reindexAndSave = async (uid, subject) => {
   await Promise.all(
     querySnapshot.docs.map(async (doc) => {
       await deleteDoc(doc.ref);
-    }),
+    })
   );
 
   // Создаем новые документы с последовательными индексами
@@ -38,7 +38,7 @@ export const reindexAndSave = async (uid, subject) => {
     querySnapshot.docs.map(async (document, index) => {
       const data = document.data(); // Получаем данные из исходного документа
       await setDoc(doc(db, subject, uid, subject, `${index}`), data); // Добавляем данные в новую коллекцию с индексом
-    }),
+    })
   );
 };
 
@@ -242,7 +242,7 @@ export const decreaseAccountMoney = async (
   userId,
   index,
   oldValue,
-  decreaser,
+  decreaser
 ) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
   const newValue = oldValue - decreaser;
@@ -254,7 +254,7 @@ export const increaseAccountMoney = async (
   userId,
   index,
   oldValue,
-  increaser,
+  increaser
 ) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
   const newValue = +oldValue + +increaser;
@@ -268,7 +268,7 @@ export const editOperation = async (
   index,
   finalObject,
   accounts,
-  operations,
+  operations
 ) => {
   const newAmount = finalObject.amount;
   const oldAmount = operations[index].amount;
@@ -291,6 +291,19 @@ export const addRetrievingsCategory = async (uid, categoryName, id) => {
   const docRef = doc(db, "categories", `${uid}`, "retrievings", `${id}`);
   await setDoc(docRef, {
     categoryName,
+  });
+};
+
+export const addCostsCategory = async (uid, categoryName, id) => {
+  const docRef = doc(db, "categories", `${uid}`, "costs", `${id}`);
+  await setDoc(docRef, {
+    categoryName,
+  });
+};
+export const addCreditors = async (uid, creditorName, id) => {
+  const docRef = doc(db, "creditors", `${uid}`, "creditors", `${id}`);
+  await setDoc(docRef, {
+    creditorName,
   });
 };
 
