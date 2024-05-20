@@ -44,21 +44,33 @@ const userReducer = createReducer({}, (builder) => {
     })
     .addCase("INCREASE_ACCOUNT_MONEY", (state, action) => {
       const currentAccount = state.user.userInfo.currentAccountIndex;
-      state.user.accounts[currentAccount].totalMoney += +action.payload;
+      state.user.accounts[currentAccount].totalMoney += action.payload;
+      state.user.accounts[currentAccount].totalMoney = +Number.parseFloat(
+        state.user.accounts[currentAccount].totalMoney
+      ).toFixed(2);
     })
     .addCase("DECREASE_ACCOUNT_MONEY", (state, action) => {
       const currentAccount = state.user.userInfo.currentAccountIndex;
       state.user.accounts[currentAccount].totalMoney -= action.payload;
+      state.user.accounts[currentAccount].totalMoney = +Number.parseFloat(
+        state.user.accounts[currentAccount].totalMoney
+      ).toFixed(2);
     })
     .addCase("TRANSFER_MONEY", (state, action) => {
       const from = action.payload.from;
       const to = action.payload.to;
-      const amount = action.payload.amount;
-      state.user.accounts.map((item, index) => {
+      const amount = +action.payload.amount;
+      state.user.accounts.forEach((item, index) => {
         if (item.name === from) {
           state.user.accounts[index].totalMoney -= +amount;
+          state.user.accounts[index].totalMoney = Number.parseFloat(
+            state.user.accounts[index].totalMoney
+          ).toFixed(2);
         } else if (item.name === to) {
           state.user.accounts[index].totalMoney += +amount;
+          state.user.accounts[index].totalMoney = Number.parseFloat(
+            state.user.accounts[index].totalMoney
+          ).toFixed(2);
         }
         return undefined;
       });

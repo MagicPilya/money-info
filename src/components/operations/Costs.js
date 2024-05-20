@@ -58,14 +58,13 @@ function Costs(props) {
       costsAmount.value
     );
     dispatch({ type: "DECREASE_ACCOUNT_MONEY", payload: costsAmount.value });
-    setCloseModal(false); // Для закрытия модалки
 
     // Сохранение операции
     setFinalObjectFromInputs(
       "Расход",
       currentAccount,
       comment.value,
-      date.value,
+      (date.value = date.value.split("-").reverse().join("/")),
       "minus",
       costsAmount.value,
       currentCurrency

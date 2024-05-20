@@ -245,9 +245,9 @@ export const decreaseAccountMoney = async (
   decreaser
 ) => {
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
-  const newValue = oldValue - decreaser;
+  const newValue = +oldValue - +decreaser;
   await updateDoc(docRef, {
-    totalMoney: newValue,
+    totalMoney: +Number.parseFloat(newValue).toFixed(2),
   });
 };
 export const increaseAccountMoney = async (
@@ -259,7 +259,7 @@ export const increaseAccountMoney = async (
   const docRef = doc(db, "accounts", userId, "accounts", `${index}`);
   const newValue = +oldValue + +increaser;
   await updateDoc(docRef, {
-    totalMoney: newValue,
+    totalMoney: +Number.parseFloat(newValue).toFixed(2),
   });
 };
 

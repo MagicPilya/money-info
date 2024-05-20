@@ -68,15 +68,15 @@ function Transfers(props) {
     await decreaseAccountMoney(
       uid,
       currentAccountIndex,
-      amountFrom,
+      +amountFrom,
       +transferSum.value
     );
     await increaseAccountMoney(uid, indexTo, amountTo, +transferSum.value);
     dispatch({
       type: "TRANSFER_MONEY",
       payload: {
-        from: currentAccount,
-        to: transferDirection.value,
+        from: +currentAccount,
+        to: +transferDirection.value,
         amount: +transferSum.value,
       },
     });
@@ -93,14 +93,15 @@ function Transfers(props) {
         this.getFullYear()
       );
     };
-    const today = Date(Date.today);
+    const currentDate = new Date();
+    const dateTime = currentDate.today();
 
     // Сохранение операции
     setFinalObjectFromInputs(
       "Перевод",
       currentAccount,
       transferDirection.value,
-      today,
+      dateTime,
       "minus",
       transferSum.value,
       currentCurrency

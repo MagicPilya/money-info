@@ -28,12 +28,12 @@ export default function AddSomeDataWithOneInput(props) {
     transmittedValue,
   } = props;
 
-  const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const handleOpen = () => {
-    setOpen(true);
+    setOpenModal(true);
   };
   const handleClose = () => {
-    setOpen(false);
+    setOpenModal(false);
     transmittedValue.setValue("");
   };
 
@@ -44,12 +44,17 @@ export default function AddSomeDataWithOneInput(props) {
         {triggerName}
       </MenuItem>
       <Modal
-        open={open}
+        open={openModal}
         onClose={handleClose}
         aria-labelledby="child-modal-title"
         aria-describedby="child-modal-description"
       >
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
           <Box sx={{ ...style, width: "33%" }}>
             <h2 id="child-modal-title">{title}</h2>
 

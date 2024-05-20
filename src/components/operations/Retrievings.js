@@ -28,7 +28,7 @@ const selectStyle = {
 };
 
 function Retrievings(props) {
-  const { oldValueOfTotalMoney, setCloseModal } = props;
+  const { oldValueOfTotalMoney } = props;
   const transmittedValueRetrievings = useInput("", {
     isEmpty: true,
     maxLength: 16,
@@ -62,7 +62,7 @@ function Retrievings(props) {
     );
     dispatch({
       type: "INCREASE_ACCOUNT_MONEY",
-      payload: retrievingsAmount.value,
+      payload: +retrievingsAmount.value,
     });
 
     // Сохранение категории
@@ -70,7 +70,7 @@ function Retrievings(props) {
       "Доход",
       currentAccount,
       comment.value,
-      date.value,
+      (date.value = date.value.split("-").reverse().join("/")),
       "plus",
       retrievingsAmount.value,
       currentCurrency
@@ -81,8 +81,6 @@ function Retrievings(props) {
       });
       await setOperation(uid, operations.length, resObject);
     });
-
-    setCloseModal(false);
   };
 
   // Добавление категории доходов

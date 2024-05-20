@@ -38,7 +38,6 @@ const Debts = (props) => {
     oldOperationType,
     oldAmount,
     operationID,
-    setCloseModal,
   } = props;
 
   const dispatch = useDispatch();
@@ -123,7 +122,7 @@ const Debts = (props) => {
       }
     }
   };
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     await setFinalObjectFromInputs(
       "Долги",
       currentAccount,
@@ -133,7 +132,6 @@ const Debts = (props) => {
       +sumOfDebt.value,
       currentCurrency
     ).then(async (answer) => await handleSetOperation(answer));
-    setCloseModal(false); // Для закрытия модалки
   };
 
   // Добавление Кредитора
