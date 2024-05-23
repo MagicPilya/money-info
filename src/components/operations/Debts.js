@@ -74,7 +74,7 @@ const Debts = (props) => {
   }, [sumOfDebt, typeOfDebt]);
 
   const handlePositive = async () => {
-    dispatch({ type: "INCREASE_ACCOUNT_MONEY", payload: sumOfDebt.value });
+    dispatch({ type: "INCREASE_ACCOUNT_MONEY", payload: +sumOfDebt.value });
     await increaseAccountMoney(
       uid,
       currentAccountIndex,
@@ -83,7 +83,7 @@ const Debts = (props) => {
     );
   };
   const handleNegative = async () => {
-    dispatch({ type: "DECREASE_ACCOUNT_MONEY", payload: sumOfDebt.value });
+    dispatch({ type: "DECREASE_ACCOUNT_MONEY", payload: +sumOfDebt.value });
     await decreaseAccountMoney(
       uid,
       currentAccountIndex,

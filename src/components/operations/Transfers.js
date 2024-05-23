@@ -75,8 +75,8 @@ function Transfers(props) {
     dispatch({
       type: "TRANSFER_MONEY",
       payload: {
-        from: +currentAccount,
-        to: +transferDirection.value,
+        from: currentAccount,
+        to: transferDirection.value,
         amount: +transferSum.value,
       },
     });

@@ -62,12 +62,12 @@ const userReducer = createReducer({}, (builder) => {
       const amount = +action.payload.amount;
       state.user.accounts.forEach((item, index) => {
         if (item.name === from) {
-          state.user.accounts[index].totalMoney -= +amount;
+          state.user.accounts[index].totalMoney -= amount;
           state.user.accounts[index].totalMoney = Number.parseFloat(
             state.user.accounts[index].totalMoney
           ).toFixed(2);
         } else if (item.name === to) {
-          state.user.accounts[index].totalMoney += +amount;
+          state.user.accounts[index].totalMoney += amount;
           state.user.accounts[index].totalMoney = Number.parseFloat(
             state.user.accounts[index].totalMoney
           ).toFixed(2);
