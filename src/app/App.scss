@@ -2,16 +2,18 @@
 @import url("../pages/mainPage/mainPage.scss");
 @import url("../modal/modal.scss");
 @import url("../components/operationCard/operationCard.scss");
+@import url("../forms/operationsForm/operationsForm.scss");
 body {
-  margin: 0;
+	margin: 0;
+	overflow: hidden;
 }
 #root {
-  background-image: url("../img/background.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-  position: relative;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	background-image: url("../img/background.png");
+	background-repeat: no-repeat;
+	background-size: cover;
+	position: relative;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
