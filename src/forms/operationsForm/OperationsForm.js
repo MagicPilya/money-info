@@ -1,9 +1,15 @@
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Input, TextField, Typography, Button } from "@mui/material";
+import { TextField, Typography, Button } from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import "dayjs/locale/ru";
+import dayjs from "dayjs";
 
+dayjs.locale("Ru");
 const textFieldStyle = {
   width: "300px",
   margin: "10px",
@@ -16,7 +22,11 @@ const costSchema = yup.object().shape({
     .number()
     .typeError("Сумма должна быть числом")
     .required("Сумма обязательна"),
-  date: yup.date().typeError("Некорректная дата").required("Дата обязательна"),
+  date: yup
+    .date()
+    .typeError("Некорректная дата")
+    .required("Дата обязательна")
+    .nonNullable(),
   description: yup.string().max(50, "Длина не должна превышать 50 символов"),
   location: yup.string().max(15, "Длина не должна превышать 15 символов"),
 });
@@ -81,22 +91,27 @@ const CostsForm = ({ control, errors }) => (
         />
       )}
     />
+
     <Controller
       name="date"
       control={control}
-      defaultValue=""
+      defaultValue={null}
       render={({ field }) => (
-        <TextField
-          label="Дата"
-          variant="outlined"
-          color="success"
-          sx={textFieldStyle}
-          error={!!errors?.date}
-          helperText={errors?.date ? errors.date.message : ""}
-          {...field}
-        />
+        <LocalizationProvider dateAdapter={AdapterDayjs} locale="ru">
+          <DatePicker
+            sx={textFieldStyle}
+            format="DD.MM.YYYY"
+            error={!!errors.date}
+            helperText={errors?.date ? errors.date.message : ""}
+            {...field}
+            render={(params) => (
+              <TextField {...params} variant="outlined" color="success" />
+            )}
+          />
+        </LocalizationProvider>
       )}
     />
+
     <Controller
       name="description"
       control={control}
@@ -139,8 +154,7 @@ const GenericForm = ({ control, errors, name, label }) => (
       control={control}
       defaultValue=""
       render={({ field }) => (
-        <Input
-          type="number"
+        <TextField
           placeholder={label}
           error={!!errors?.[name]}
           helperText={errors?.[name] ? errors[name].message : ""}
@@ -188,14 +202,14 @@ export default function OperationsForm({ operationType }) {
   });
   const FormComponent = forms[operationType] || null;
 
-  const onSubmit = (data) => {
-    console.log(`Submitting ${operationType} Form:`, data);
-    // Логика для обработки данных формы
-  };
-
   return (
     <div className="operationsForm">
-      <form className="operationsForm__form" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="operationsForm__form"
+        onSubmit={handleSubmit((data) =>
+          console.log(`Submitting ${operationType} Form:`, data)
+        )}
+      >
         {FormComponent && <FormComponent control={control} errors={errors} />}
         <Button type="submit" variant="contained" color="success">
           Подтвердить
