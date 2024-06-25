@@ -13,6 +13,7 @@ dayjs.locale("Ru");
 const textFieldStyle = {
   width: "300px",
   margin: "10px",
+  "&:blur": { border: "1px solid green" },
 };
 
 const costSchema = yup.object().shape({
@@ -22,11 +23,7 @@ const costSchema = yup.object().shape({
     .number()
     .typeError("Сумма должна быть числом")
     .required("Сумма обязательна"),
-  date: yup
-    .date()
-    .typeError("Некорректная дата")
-    .required("Дата обязательна")
-    .nonNullable(),
+  date: yup.date().typeError("Некорректная дата").required("Дата обязательна"),
   description: yup.string().max(50, "Длина не должна превышать 50 символов"),
   location: yup.string().max(15, "Длина не должна превышать 15 символов"),
 });
@@ -101,11 +98,23 @@ const CostsForm = ({ control, errors }) => (
           <DatePicker
             sx={textFieldStyle}
             format="DD.MM.YYYY"
-            error={!!errors.date}
+            label="Дата"
+            slotProps={{
+              textField: {
+                error: !!errors.date,
+                helperText: errors?.date ? errors.date.message : "",
+                color: "success",
+              },
+            }}
             helperText={errors?.date ? errors.date.message : ""}
             {...field}
             render={(params) => (
-              <TextField {...params} variant="outlined" color="success" />
+              <TextField
+                {...params}
+                variant="outlined"
+                color="success"
+                sx={textFieldStyle}
+              />
             )}
           />
         </LocalizationProvider>
