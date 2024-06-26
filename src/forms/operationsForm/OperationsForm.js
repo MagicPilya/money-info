@@ -13,7 +13,7 @@ import AddItemDialog from "../../modal/addItemDialog/AddItemDialog";
 dayjs.locale("Ru");
 
 const textFieldStyle = {
-  width: "300px",
+  width: "200px",
   margin: "10px",
   "&:blur": { border: "1px solid green" },
 };
@@ -86,7 +86,7 @@ const CostsForm = ({ control, errors }) => {
         )}
       />
       <Controller
-        name="category"
+        name="additionalInfo"
         control={control}
         sx={textFieldStyle}
         defaultValue=""
@@ -288,12 +288,26 @@ export default function OperationsForm({ operationType }) {
   });
   const FormComponent = forms[operationType] || null;
 
+  const operations = [];
   return (
     <div className="operationsForm">
       <form
         className="operationsForm__form"
+        // id, type, name, amount, date, description, additionalInfo, location
         onSubmit={handleSubmit((data) => {
-          console.log(`Submitting ${operationType} Form:`, data);
+          const { location, description, date, amount, additionalInfo, name } =
+            data;
+          const finalObject = {
+            id: operations.length,
+            type: operationType,
+            name,
+            amount,
+            date: dayjs(date).format("DD.MM.YYYY"),
+            description,
+            additionalInfo,
+            location,
+          };
+          console.log(finalObject);
         })}
       >
         {FormComponent && <FormComponent control={control} errors={errors} />}
