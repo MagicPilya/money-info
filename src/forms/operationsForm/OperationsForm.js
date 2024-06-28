@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { TextField, Typography, Button, Autocomplete } from "@mui/material";
+import {
+  TextField,
+  Typography,
+  Button,
+  Autocomplete,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -10,7 +22,7 @@ import "dayjs/locale/ru";
 import dayjs from "dayjs";
 import AddItemDialog from "../../modal/addItemDialog/AddItemDialog";
 
-dayjs.locale("Ru");
+dayjs.locale("ru");
 
 const textFieldStyle = {
   width: "200px",
@@ -18,9 +30,32 @@ const textFieldStyle = {
   "&:blur": { border: "1px solid green" },
 };
 
-const costSchema = yup.object().shape({
+const commonSchema = {
   name: yup.string().required("Название обязательно"),
-  category: yup.string().required("Категория обязательна"),
+  additionalInfo: yup.string().required("Категория обязательна"),
+  amount: yup
+    .number()
+    .typeError("Сумма должна быть числом")
+    .required("Сумма обязательна"),
+  date: yup.date().typeError("Некорректная дата").required("Дата обязательна"),
+  description: yup.string().max(50, "Длина не должна превышать 50 символов"),
+  location: yup.string().max(15, "Длина не должна превышать 15 символов"),
+};
+
+const costSchema = yup.object().shape({
+  ...commonSchema,
+});
+
+const retrievingsSchema = yup.object().shape({
+  ...commonSchema,
+});
+
+const debtsSchema = yup.object().shape({
+  ...commonSchema,
+});
+
+const transfersSchema = yup.object().shape({
+  additionalInfo: yup.string().required("Категория обязательна"),
   amount: yup
     .number()
     .typeError("Сумма должна быть числом")
@@ -37,68 +72,59 @@ const defaultSchema = yup.object().shape({
     .required("Поле обязательно"),
 });
 
-const CostsForm = ({ control, errors }) => {
-  const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
-  const [openLocationDialog, setOpenLocationDialog] = useState(false);
-  const [categoryOptions, setCategoryOptions] = useState([
-    "Food",
-    "Transport",
-    "Utilities",
-    "Entertainment",
-    "Добавить категорию",
-  ]);
-  const [locationOptions, setLocationOptions] = useState([
-    "Home",
-    "Office",
-    "Gym",
-    "Store",
-    "Добавить место",
-  ]);
+const schemas = {
+  Costs: costSchema,
+  Retrievings: retrievingsSchema,
+  Transfers: transfersSchema,
+  Debts: debtsSchema,
+};
 
-  const handleAddCategory = (newCategory) => {
-    setCategoryOptions([...categoryOptions, newCategory]);
-    setOpenCategoryDialog(false);
-  };
-
-  const handleAddLocation = (newLocation) => {
-    setLocationOptions([...locationOptions, newLocation]);
-    setOpenLocationDialog(false);
-  };
-  return (
-    <div>
-      <Typography variant="h2" component="h2">
-        Расход
-      </Typography>
-      <Controller
-        name="name"
-        control={control}
-        defaultValue=""
-        render={({ field }) => (
-          <TextField
-            label="Название"
-            variant="outlined"
-            color="success"
-            sx={textFieldStyle}
-            error={!!errors?.name}
-            helperText={errors?.name ? errors.name.message : ""}
-            {...field}
-          />
-        )}
-      />
-      <Controller
-        name="additionalInfo"
-        control={control}
+const InputField = ({ name, label, control, errors, ...props }) => (
+  <Controller
+    name={name}
+    control={control}
+    defaultValue=""
+    render={({ field }) => (
+      <TextField
+        label={label}
+        variant="outlined"
+        color="success"
         sx={textFieldStyle}
+        error={!!errors?.[name]}
+        helperText={errors?.[name] ? errors[name].message : ""}
+        {...field}
+        {...props}
+      />
+    )}
+  />
+);
+
+const AutocompleteField = ({
+  name,
+  label,
+  control,
+  errors,
+  options,
+  handleAdd,
+  dialogTitle,
+  dialogLabel,
+}) => {
+  const [openDialog, setOpenDialog] = useState(false);
+
+  return (
+    <>
+      <Controller
+        name={name}
+        control={control}
         defaultValue=""
         render={({ field }) => (
           <Autocomplete
-            sx={{ width: "300px" }}
             {...field}
             freeSolo
-            options={categoryOptions}
+            options={options}
             onChange={(event, newValue) => {
-              if (newValue === "Добавить категорию") {
-                setOpenCategoryDialog(true);
+              if (newValue === `Добавить ${dialogLabel.toLowerCase()}`) {
+                setOpenDialog(true);
               } else {
                 field.onChange(newValue);
               }
@@ -106,213 +132,384 @@ const CostsForm = ({ control, errors }) => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Категория"
+                label={label}
                 variant="outlined"
                 color="success"
                 sx={textFieldStyle}
-                error={!!errors?.category}
-                helperText={errors?.category ? errors.category.message : ""}
+                error={!!errors?.[name]}
+                helperText={errors?.[name] ? errors[name].message : ""}
               />
             )}
           />
         )}
       />
       <AddItemDialog
-        open={openCategoryDialog}
-        onClose={() => setOpenCategoryDialog(false)}
-        onAdd={handleAddCategory}
-        title="Добавить категорию"
-        label="Категория"
-        labelForInput="Название категории"
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        onAdd={handleAdd}
+        title={dialogTitle}
+        label={dialogLabel}
+        labelForInput={`Название ${dialogLabel.toLowerCase()}`}
       />
-      <Controller
-        name="amount"
-        control={control}
-        defaultValue=""
-        render={({ field }) => (
-          <TextField
-            label="Сумма"
-            variant="outlined"
-            color="success"
-            sx={textFieldStyle}
-            error={!!errors?.amount}
-            helperText={errors?.amount ? errors.amount.message : ""}
-            {...field}
-          />
-        )}
-      />
-
-      <Controller
-        name="date"
-        control={control}
-        defaultValue={null}
-        render={({ field }) => (
-          <LocalizationProvider dateAdapter={AdapterDayjs} locale="ru">
-            <DatePicker
-              sx={textFieldStyle}
-              format="DD.MM.YYYY"
-              label="Дата"
-              slotProps={{
-                textField: {
-                  error: !!errors.date,
-                  helperText: errors?.date ? errors.date.message : "",
-                  color: "success",
-                },
-              }}
-              helperText={errors?.date ? errors.date.message : ""}
-              {...field}
-              render={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  color="success"
-                  sx={textFieldStyle}
-                />
-              )}
-            />
-          </LocalizationProvider>
-        )}
-      />
-
-      <Controller
-        name="description"
-        control={control}
-        defaultValue=""
-        render={({ field }) => (
-          <TextField
-            label="Описание"
-            variant="outlined"
-            color="success"
-            sx={textFieldStyle}
-            error={!!errors?.description}
-            helperText={errors?.description ? errors.description.message : ""}
-            {...field}
-          />
-        )}
-      />
-      <Controller
-        name="location"
-        control={control}
-        defaultValue=""
-        render={({ field }) => (
-          <Autocomplete
-            {...field}
-            freeSolo
-            sx={{ width: "300px" }}
-            options={locationOptions}
-            onChange={(event, newValue) => {
-              if (newValue === "Добавить место") {
-                setOpenLocationDialog(true);
-              } else {
-                field.onChange(newValue);
-              }
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Место"
-                variant="outlined"
-                color="success"
-                sx={textFieldStyle}
-                error={!!errors?.location}
-                helperText={errors?.location ? errors.location.message : ""}
-              />
-            )}
-          />
-        )}
-      />
-      <AddItemDialog
-        open={openLocationDialog}
-        onClose={() => setOpenLocationDialog(false)}
-        onAdd={handleAddLocation}
-        title="Добавить место"
-        label="Места"
-        labelForInput="Название места"
-      />
-    </div>
+    </>
   );
 };
 
-const GenericForm = ({ control, errors, name, label }) => (
-  <div>
-    <Controller
-      name={name}
-      control={control}
-      defaultValue=""
-      render={({ field }) => (
-        <TextField
-          placeholder={label}
-          error={!!errors?.[name]}
+const DateField = ({ name, label, control, errors }) => (
+  <Controller
+    name={name}
+    control={control}
+    defaultValue={null}
+    render={({ field }) => (
+      <LocalizationProvider dateAdapter={AdapterDayjs} locale="ru">
+        <DatePicker
+          sx={textFieldStyle}
+          format="DD.MM.YYYY"
+          label={label}
+          slotProps={{
+            textField: {
+              error: !!errors?.[name],
+              helperText: errors?.[name] ? errors[name].message : "",
+              color: "success",
+            },
+          }}
           helperText={errors?.[name] ? errors[name].message : ""}
           {...field}
+          render={(params) => (
+            <TextField
+              {...params}
+              variant="outlined"
+              color="success"
+              sx={textFieldStyle}
+            />
+          )}
         />
-      )}
+      </LocalizationProvider>
+    )}
+  />
+);
+
+const CostsForm = ({
+  control,
+  errors,
+  handleAddCategory,
+  handleAddLocation,
+  categoryOptions,
+  locationOptions,
+}) => (
+  <div>
+    <Typography variant="h2" component="h2">
+      Расход
+    </Typography>
+    <InputField
+      name="name"
+      label="Название"
+      control={control}
+      errors={errors}
+    />
+    <AutocompleteField
+      name="additionalInfo"
+      label="Категория"
+      control={control}
+      errors={errors}
+      options={categoryOptions}
+      handleAdd={handleAddCategory}
+      dialogTitle="Добавить категорию"
+      dialogLabel="категорию"
+    />
+    <InputField name="amount" label="Сумма" control={control} errors={errors} />
+    <DateField name="date" label="Дата" control={control} errors={errors} />
+    <InputField
+      name="description"
+      label="Описание"
+      control={control}
+      errors={errors}
+    />
+    <AutocompleteField
+      name="location"
+      label="Место"
+      control={control}
+      errors={errors}
+      options={locationOptions}
+      handleAdd={handleAddLocation}
+      dialogTitle="Добавить место"
+      dialogLabel="место"
     />
   </div>
 );
 
-const RetrievingsForm = (props) => (
-  <GenericForm {...props} name="Retrievings" label="Retrievings" />
+const RetrievingsForm = ({
+  control,
+  errors,
+  handleAddCategory,
+  handleAddLocation,
+  categoryOptions,
+  locationOptions,
+}) => (
+  <div>
+    <Typography variant="h2" component="h2">
+      Доход
+    </Typography>
+    <InputField
+      name="name"
+      label="Название"
+      control={control}
+      errors={errors}
+    />
+    <AutocompleteField
+      name="additionalInfo"
+      label="Категория"
+      control={control}
+      errors={errors}
+      options={categoryOptions}
+      handleAdd={handleAddCategory}
+      dialogTitle="Добавить категорию"
+      dialogLabel="категорию"
+    />
+    <InputField name="amount" label="Сумма" control={control} errors={errors} />
+    <DateField name="date" label="Дата" control={control} errors={errors} />
+    <InputField
+      name="description"
+      label="Описание"
+      control={control}
+      errors={errors}
+    />
+    <AutocompleteField
+      name="location"
+      label="Место"
+      control={control}
+      errors={errors}
+      options={locationOptions}
+      handleAdd={handleAddLocation}
+      dialogTitle="Добавить место"
+      dialogLabel="место"
+    />
+  </div>
 );
 
-const TransfersForm = (props) => (
-  <GenericForm {...props} name="Transfers" label="Transfers" />
+const DebtsForm = ({
+  control,
+  errors,
+  handleAddCategory,
+  handleAddLocation,
+  categoryOptions,
+  locationOptions,
+  transactionType,
+  setTransactionType,
+}) => (
+  <div>
+    <Typography variant="h2" component="h2">
+      Долги
+    </Typography>
+    <Controller
+      name="name"
+      control={control}
+      defaultValue="positive"
+      render={({ field }) => (
+        <RadioGroup
+          {...field}
+          value={transactionType}
+          onChange={(event) => {
+            setTransactionType(event.target.value);
+            field.onChange(event.target.value);
+          }}
+          row
+        >
+          <FormControlLabel
+            value="positive"
+            control={<Radio color="success" />}
+            label="Я беру в долг / Мне вернули долг"
+          />
+          <FormControlLabel
+            value="negative"
+            control={<Radio color="error" />}
+            label="Я дал в долг / Я вернул долг"
+          />
+        </RadioGroup>
+      )}
+    />
+    <AutocompleteField
+      name="additionalInfo"
+      label="Имя кредитора"
+      control={control}
+      errors={errors}
+      options={categoryOptions}
+      handleAdd={handleAddCategory}
+      dialogTitle="Добавить кредитора"
+      dialogLabel="кредитора"
+    />
+    <InputField
+      name="amount"
+      label="Сумма"
+      control={control}
+      errors={errors}
+      color={transactionType === "positive" ? "success" : "error"}
+    />
+    <DateField name="date" label="Дата" control={control} errors={errors} />
+    <InputField
+      name="description"
+      label="Описание"
+      control={control}
+      errors={errors}
+    />
+    <AutocompleteField
+      name="location"
+      label="Место"
+      control={control}
+      errors={errors}
+      options={locationOptions}
+      handleAdd={handleAddLocation}
+      dialogTitle="Добавить место"
+      dialogLabel="место"
+    />
+  </div>
 );
 
-const DebtsForm = (props) => (
-  <GenericForm {...props} name="Debts" label="Debts" />
+const TransfersForm = ({
+  control,
+  errors,
+  handleAddCategory,
+  categoryOptions,
+}) => (
+  <div>
+    <Typography variant="h2" component="h2">
+      Переводы
+    </Typography>
+    <AutocompleteField
+      name="additionalInfo"
+      label="Счет"
+      control={control}
+      errors={errors}
+      options={categoryOptions}
+      handleAdd={handleAddCategory}
+      dialogTitle="Добавить счет"
+      dialogLabel="счет"
+    />
+    <InputField name="amount" label="Сумма" control={control} errors={errors} />
+    <DateField name="date" label="Дата" control={control} errors={errors} />
+    <InputField
+      name="description"
+      label="Описание"
+      control={control}
+      errors={errors}
+    />
+  </div>
 );
 
-const forms = {
-  Costs: CostsForm,
-  Retrievings: RetrievingsForm,
-  Transfers: TransfersForm,
-  Debts: DebtsForm,
+const defaultValues = {
+  name: "",
+  additionalInfo: "",
+  amount: "",
+  date: null,
+  description: "",
+  location: "",
 };
 
-const schemas = {
-  Costs: costSchema,
-  Retrievings: defaultSchema,
-  Transfers: defaultSchema,
-  Debts: defaultSchema,
-};
-
-export default function OperationsForm({ operationType }) {
-  const schema = schemas[operationType] || defaultSchema;
+export default function TransactionForm() {
+  const [formType, setFormType] = useState("Costs");
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schemas[formType]),
+    defaultValues,
   });
-  const FormComponent = forms[operationType] || null;
 
-  const operations = [];
+  const [categoryOptions, setCategoryOptions] = useState([
+    "Продукты",
+    "Транспорт",
+    "Кафе",
+    "Развлечения",
+    "Коммунальные платежи",
+    "Зарплата",
+  ]);
+  const [locationOptions, setLocationOptions] = useState([
+    "Москва",
+    "Санкт-Петербург",
+    "Новосибирск",
+  ]);
+  const [transactionType, setTransactionType] = useState("positive");
+
+  const handleAddCategory = (newCategory) => {
+    setCategoryOptions((prev) => [...prev, newCategory]);
+  };
+
+  const handleAddLocation = (newLocation) => {
+    setLocationOptions((prev) => [...prev, newLocation]);
+  };
+
+  const onSubmit = (data) => {
+    const { additionalInfo, amount, date, description, location, name } = data;
+    const finalObject = {
+      additionalInfo,
+      amount,
+      date: dayjs(date).format("DD.MM.YYYY"),
+      description,
+      location,
+      name,
+    };
+
+    console.log(finalObject);
+  };
+
   return (
     <div className="operationsForm">
-      <form
-        className="operationsForm__form"
-        // id, type, name, amount, date, description, additionalInfo, location
-        onSubmit={handleSubmit((data) => {
-          const { location, description, date, amount, additionalInfo, name } =
-            data;
-          const finalObject = {
-            id: operations.length,
-            type: operationType,
-            name,
-            amount,
-            date: dayjs(date).format("DD.MM.YYYY"),
-            description,
-            additionalInfo,
-            location,
-          };
-          console.log(finalObject);
-        })}
-      >
-        {FormComponent && <FormComponent control={control} errors={errors} />}
-        <Button type="submit" variant="contained" color="success">
-          Подтвердить
+      <Typography variant="h4" component="h1">
+        Создание транзакции
+      </Typography>
+      <FormControl sx={{ minWidth: 200 }}>
+        <InputLabel>Тип транзакции</InputLabel>
+        <Select value={formType} onChange={(e) => setFormType(e.target.value)}>
+          <MenuItem value="Costs">Расход</MenuItem>
+          <MenuItem value="Retrievings">Доход</MenuItem>
+          <MenuItem value="Debts">Долги</MenuItem>
+          <MenuItem value="Transfers">Переводы</MenuItem>
+        </Select>
+      </FormControl>
+      <form onSubmit={handleSubmit(onSubmit)} className="operationsForm__form">
+        {formType === "Costs" && (
+          <CostsForm
+            control={control}
+            errors={errors}
+            handleAddCategory={handleAddCategory}
+            handleAddLocation={handleAddLocation}
+            categoryOptions={categoryOptions}
+            locationOptions={locationOptions}
+          />
+        )}
+        {formType === "Retrievings" && (
+          <RetrievingsForm
+            control={control}
+            errors={errors}
+            handleAddCategory={handleAddCategory}
+            handleAddLocation={handleAddLocation}
+            categoryOptions={categoryOptions}
+            locationOptions={locationOptions}
+          />
+        )}
+        {formType === "Debts" && (
+          <DebtsForm
+            control={control}
+            errors={errors}
+            handleAddCategory={handleAddCategory}
+            handleAddLocation={handleAddLocation}
+            categoryOptions={categoryOptions}
+            locationOptions={locationOptions}
+            transactionType={transactionType}
+            setTransactionType={setTransactionType}
+          />
+        )}
+        {formType === "Transfers" && (
+          <TransfersForm
+            control={control}
+            errors={errors}
+            handleAddCategory={handleAddCategory}
+            categoryOptions={categoryOptions}
+          />
+        )}
+        <Button variant="contained" color="success" type="submit">
+          Создать
         </Button>
       </form>
     </div>
