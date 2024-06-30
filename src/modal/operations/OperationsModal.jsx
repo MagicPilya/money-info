@@ -15,7 +15,7 @@ import { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import Operations from "../../components/operations/Operations";
+import OperationsForms from "../../forms/operationsForm/OperationsForm";
 import { connect, useDispatch } from "react-redux";
 
 import { findDataOfAccount } from "../../utils/arraysOperations";
@@ -138,10 +138,10 @@ function OperationsModal(props) {
                         setOperation(e.target.value);
                       }}
                     >
-                      <MenuItem value="Cost">Расход</MenuItem>
-                      <MenuItem value="Retrieving">Доход</MenuItem>
-                      <MenuItem value="Transfer">Перевод</MenuItem>
-                      <MenuItem value="Debt">Долги</MenuItem>
+                      <MenuItem value="Costs">Расход</MenuItem>
+                      <MenuItem value="Retrievings">Доход</MenuItem>
+                      <MenuItem value="Transfers">Перевод</MenuItem>
+                      <MenuItem value="Debts">Долги</MenuItem>
                     </Select>
                   </FormControl>
                 </div>
@@ -190,12 +190,12 @@ function OperationsModal(props) {
               </div>
 
               <div className="operations__workBox">
-                <Operations
-                  operationName={operation}
-                  setCloseModal={setOpen}
-                  currentAccountIndex={currentAccountIndex}
-                  uid={uid}
-                  oldValueOfTotalMoney={totalMoneyOfCurrentAccount}
+                <OperationsForms
+                  formType={operation}
+                  // setCloseModal={setOpen}
+                  // currentAccountIndex={currentAccountIndex}
+                  // uid={uid}
+                  // oldValueOfTotalMoney={totalMoneyOfCurrentAccount}
                 />
               </div>
             </Box>

@@ -65,13 +65,6 @@ const transfersSchema = yup.object().shape({
   location: yup.string().max(15, "Длина не должна превышать 15 символов"),
 });
 
-const defaultSchema = yup.object().shape({
-  value: yup
-    .number()
-    .typeError("Значение должно быть числом")
-    .required("Поле обязательно"),
-});
-
 const schemas = {
   Costs: costSchema,
   Retrievings: retrievingsSchema,
@@ -405,8 +398,7 @@ const defaultValues = {
   location: "",
 };
 
-export default function TransactionForm() {
-  const [formType, setFormType] = useState("Costs");
+export default function TransactionForm(formType) {
   const {
     control,
     handleSubmit,
@@ -455,18 +447,6 @@ export default function TransactionForm() {
 
   return (
     <div className="operationsForm">
-      <Typography variant="h4" component="h1">
-        Создание транзакции
-      </Typography>
-      <FormControl sx={{ minWidth: 200 }}>
-        <InputLabel>Тип транзакции</InputLabel>
-        <Select value={formType} onChange={(e) => setFormType(e.target.value)}>
-          <MenuItem value="Costs">Расход</MenuItem>
-          <MenuItem value="Retrievings">Доход</MenuItem>
-          <MenuItem value="Debts">Долги</MenuItem>
-          <MenuItem value="Transfers">Переводы</MenuItem>
-        </Select>
-      </FormControl>
       <form onSubmit={handleSubmit(onSubmit)} className="operationsForm__form">
         {formType === "Costs" && (
           <CostsForm
