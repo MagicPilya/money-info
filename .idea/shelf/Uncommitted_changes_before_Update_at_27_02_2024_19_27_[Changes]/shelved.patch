@@ -1,0 +1,148 @@
+Index: src/pages/mainPage/MainPage.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import {useEffect, useState} from \"react\";\r\nimport useProtectedRoute from \"../../hooks/useProtectedRoute\";\r\nimport {useDispatch} from \"react-redux\";\r\nimport {connect} from \"react-redux\";\r\nimport {\r\n  Skeleton,\r\n  Typography\r\n} from \"@mui/material\";\r\nimport TopBar from \"../../components/topBar/TopBar\";\r\nimport {deleteInitialValues} from '../../firebase/database.js';\r\nimport {setUserInfo} from \"../../utils/setUserInfo\";\r\nimport OperationCard from \"../../components/operationCard/OperationCard\";\r\n\r\nfunction MainPage(props) {\r\n  const store = props.store;\r\n  const [loading = true, setLoading] = useState();\r\n  const dispatch = useDispatch();\r\n  // eslint-disable-next-line\r\n  const [operationID, setOperationID] = useState('');\r\n  \r\n useEffect(() => {\r\n\r\n    setUserInfo().then(async (answer) => {\r\n      dispatch({type: 'SET_CURRENT_USER', payload: answer});\r\n        await setLoading(false);\r\n        await deleteInitialValues(answer.user, 'accounts');\r\n        await deleteInitialValues(answer.user, 'categories');\r\n        await deleteInitialValues(answer.user, 'creditors');\r\n        await deleteInitialValues(answer.user, 'currencies');\r\n        await deleteInitialValues(answer.user, 'operations');\r\n        })\r\n  }, [loading, dispatch]);\r\n \r\n  useProtectedRoute();\r\n\r\n\r\n  if (loading) {\r\n    return (\r\n      <>\r\n        <Skeleton variant=\"rectangular\" width={210} height={60}/>\r\n      </>\r\n    );\r\n  } else if (!loading) {\r\n    const user = props.store.currentUser.user;\r\n    const operations = user.operations;\r\n    return (\r\n      <div className=\"mainPage\">\r\n        <div className=\"mainPage__topBar\">\r\n          <TopBar\r\n            name={store.currentUser.user.userInfo.name}\r\n            totalMoney={store.currentUser.user.userInfo.totalMoney}\r\n            currentCurrency={\r\n              store.currentUser.user.userInfo.currentCurrency\r\n            }\r\n            currentCurrencyIndex={store.currentUser.user.userInfo.currentCurrencyIndex}\r\n            currenciesList={store.currentUser.user.currency.currencies}\r\n            uid={store.currentUser.user.userInfo.uid}\r\n            accounts={store.currentUser.user.accounts}\r\n            currentAccount={store.currentUser.user.userInfo.currentAccount}\r\n            currentAccountIndex={store.currentUser.user.userInfo.currentAccountIndex}\r\n          ></TopBar>\r\n        </div>\r\n        <div className=\"mainPage__workBox\">\r\n          <div className=\"mainPage__workBox-title\">\r\n            <Typography variant=\"h2\" gutterBottom component=\"h2\">\r\n              Последние операции\r\n            </Typography>\r\n          </div>\r\n          <div className=\"mainPage__workBox-table\">\r\n            {operations.map((item, id) => (\r\n              <OperationCard\r\n                key={id}\r\n                operationID={id}\r\n                setOperationID={setOperationID}\r\n                operationName={item.operationName}\r\n                currentAccount={item.currentAccount}\r\n                description={item.description}\r\n                operationDate={item.operationDate}\r\n                operationType={item.operationType}\r\n                amount={item.amount}\r\n                currentCurrency={item.currentCurrency}\r\n              />\r\n            )) || undefined}\r\n          </div>\r\n        </div>\r\n      </div>\r\n    );\r\n  }\r\n}\r\nexport default connect((state) => ({store: state}))(MainPage);\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/pages/mainPage/MainPage.js b/src/pages/mainPage/MainPage.js
+--- a/src/pages/mainPage/MainPage.js	(revision 7da988703aabe1881797c525ab3d6dee1f0ef193)
++++ b/src/pages/mainPage/MainPage.js	(date 1708450147393)
+@@ -53,7 +53,7 @@
+               store.currentUser.user.userInfo.currentCurrency
+             }
+             currentCurrencyIndex={store.currentUser.user.userInfo.currentCurrencyIndex}
+-            currenciesList={store.currentUser.user.currency.currencies}
++            currenciesList={store.currentUser.user.currencies.currencies}
+             uid={store.currentUser.user.userInfo.uid}
+             accounts={store.currentUser.user.accounts}
+             currentAccount={store.currentUser.user.userInfo.currentAccount}
+Index: src/components/currency/Currency.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import { useEffect, useState } from 'react';\r\nimport { useDispatch } from \"react-redux\";\r\n\r\nimport { MenuItem, Menu, Button, Fade, IconButton } from \"@mui/material\";\r\nimport {RemoveCircleOutline, ExpandMore} from \"@mui/icons-material\";\r\n\r\nimport { setCurrentCurrency, deleteCurrency } from \"../../firebase/database\";\r\nimport PreDeleteDialog from \"../../modal/info/PreDeleteDialog\";\r\n\r\nexport default function Currency(props) {\r\n  const { currentCurrency, currenciesList, totalMoney, uid, currentCurrencyIndex } = props;\r\n  const dispatch = useDispatch();\r\n\r\n  const [anchorEl, setAnchorEl] = useState(null);\r\n  const [openDialog, setOpenDialog] = useState(false);\r\n  const [currency, setCurrency] = useState(\"\");\r\n  const open = Boolean(anchorEl);\r\n  const handleClick = (event) => {\r\n    setAnchorEl(event.currentTarget);\r\n  };\r\n  const handleClose = () => {\r\n    setAnchorEl(null);\r\n  };\r\n\r\n  const handleDelete = async () => {\r\n    await deleteCurrency(uid, currency);\r\n    dispatch({ type: \"DELETE_CURRENCY\", payload: currency });\r\n  }\r\n\r\n  return (\r\n    <div className=\"currency\">\r\n      Всего: {`${totalMoney} В валюте`}\r\n      <Button\r\n        id=\"fade-button\"\r\n        aria-controls={open ? \"fade-menu\" : undefined}\r\n        aria-haspopup=\"true\"\r\n        aria-expanded={open ? \"true\" : undefined}\r\n        onClick={handleClick}\r\n        color=\"success\"\r\n        sx={{ fontSize: \"20px\" }}\r\n      >\r\n        {currentCurrency}\r\n        <ExpandMore/>\r\n      </Button>\r\n      <Menu\r\n        id=\"fade-menu\"\r\n        MenuListProps={{\r\n          \"aria-labelledby\": \"fade-button\",\r\n        }}\r\n        anchorEl={anchorEl}\r\n        open={open}\r\n        onClose={handleClose}\r\n        TransitionComponent={Fade}\r\n      >\r\n\r\n          // Удалили dispatch\r\n        { currenciesList.map((item, key) => (\r\n          <MenuItem key={key}>\r\n            <p\r\n              style={{ width: \"100%\", height: \"100%\", margin: \"10px 10px\" }}\r\n              onClick={async () => {\r\n                  dispatch({\r\n                    type: \"SET_ACTIVE_CURRENCY\",\r\n                    payload: item,\r\n                  });\r\n                  await setCurrentCurrency(uid, item);\r\n                  dispatch({\r\n                    type: \"SET_ACTIVE_CURRENCY_INDEX\",\r\n                    payload: key,\r\n                  });\r\n                  await handleClose();\r\n              }}\r\n            >\r\n              {item}\r\n            </p>\r\n            <IconButton\r\n              aria-label=\"delete\"\r\n              onClick={ () => {\r\n                if (item !== currentCurrency) {\r\n                  setCurrency(item);\r\n                  setOpenDialog(true);\r\n                  handleClose();\r\n                }\r\n              }}\r\n            >\r\n              <RemoveCircleOutline />\r\n            </IconButton>\r\n          </MenuItem>\r\n        ))}\r\n      </Menu>\r\n        <PreDeleteDialog\r\n        handleAction={handleDelete}\r\n        trigger={openDialog}\r\n        triggerSetter={setOpenDialog}\r\n        title=\"валюту\"\r\n        />\r\n    </div>\r\n  );\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/components/currency/Currency.js b/src/components/currency/Currency.js
+--- a/src/components/currency/Currency.js	(revision 7da988703aabe1881797c525ab3d6dee1f0ef193)
++++ b/src/components/currency/Currency.js	(date 1708450435522)
+@@ -1,5 +1,5 @@
+ import { useEffect, useState } from 'react';
+-import { useDispatch } from "react-redux";
++import {connect, useDispatch} from "react-redux";
+ 
+ import { MenuItem, Menu, Button, Fade, IconButton } from "@mui/material";
+ import {RemoveCircleOutline, ExpandMore} from "@mui/icons-material";
+@@ -7,8 +7,17 @@
+ import { setCurrentCurrency, deleteCurrency } from "../../firebase/database";
+ import PreDeleteDialog from "../../modal/info/PreDeleteDialog";
+ 
+-export default function Currency(props) {
+-  const { currentCurrency, currenciesList, totalMoney, uid, currentCurrencyIndex } = props;
++function Currency(props) {
++  const store = props.store;
++  const user = store.currentUser.user;
++  const userInfo = user.userInfo;
++
++  const currenciesList = user.currencies;
++
++  const uid = userInfo.uid;
++  const currentCurrencyIndex = userInfo.currentCurrencyIndex;
++  const totalMoney = userInfo.totalMoney;
++  const currentCurrency = userInfo.currentCurrency;
+   const dispatch = useDispatch();
+ 
+   const [anchorEl, setAnchorEl] = useState(null);
+@@ -53,7 +62,6 @@
+         TransitionComponent={Fade}
+       >
+ 
+-          // Удалили dispatch
+         { currenciesList.map((item, key) => (
+           <MenuItem key={key}>
+             <p
+@@ -97,3 +105,4 @@
+     </div>
+   );
+ }
++export default connect((state) => ({store: state}))(Currency);
+Index: package-lock.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/package-lock.json b/package-lock.json
+--- a/package-lock.json	(revision 7da988703aabe1881797c525ab3d6dee1f0ef193)
++++ b/package-lock.json	(date 1708450456462)
+@@ -29,6 +29,9 @@
+         "redux": "^4.2.1",
+         "sass": "^1.63.6",
+         "web-vitals": "^2.1.4"
++      },
++      "devDependencies": {
++        "prettier": "^3.2.5"
+       }
+     },
+     "node_modules/@aashutoshrathi/word-wrap": {
+@@ -20786,6 +20789,21 @@
+         "node": ">= 0.8.0"
+       }
+     },
++    "node_modules/prettier": {
++      "version": "3.2.5",
++      "resolved": "https://registry.npmjs.org/prettier/-/prettier-3.2.5.tgz",
++      "integrity": "sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==",
++      "dev": true,
++      "bin": {
++        "prettier": "bin/prettier.cjs"
++      },
++      "engines": {
++        "node": ">=14"
++      },
++      "funding": {
++        "url": "https://github.com/prettier/prettier?sponsor=1"
++      }
++    },
+     "node_modules/pretty-bytes": {
+       "version": "5.6.0",
+       "resolved": "https://registry.npmjs.org/pretty-bytes/-/pretty-bytes-5.6.0.tgz",
+Index: package.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\r\n  \"name\": \"money-info\",\r\n  \"version\": \"0.1.0\",\r\n  \"private\": true,\r\n  \"dependencies\": {\r\n    \"@emotion/react\": \"^11.11.1\",\r\n    \"@emotion/styled\": \"^11.11.0\",\r\n    \"@mui/icons-material\": \"^5.14.1\",\r\n    \"@mui/joy\": \"^5.0.0-beta.1\",\r\n    \"@mui/material\": \"^5.14.2\",\r\n    \"@reduxjs/toolkit\": \"^1.9.5\",\r\n    \"@testing-library/jest-dom\": \"^5.17.0\",\r\n    \"@testing-library/react\": \"^13.4.0\",\r\n    \"@testing-library/user-event\": \"^13.5.0\",\r\n    \"firebase\": \"^10.0.0\",\r\n    \"react\": \"^18.2.0\",\r\n    \"react-dom\": \"^18.2.0\",\r\n    \"react-redux\": \"^8.1.1\",\r\n    \"react-router\": \"^6.14.2\",\r\n    \"react-router-dom\": \"^6.14.2\",\r\n    \"react-scripts\": \"5.0.1\",\r\n    \"redux\": \"^4.2.1\",\r\n    \"sass\": \"^1.63.6\",\r\n    \"web-vitals\": \"^2.1.4\",\r\n    \"@react-buddy/ide-toolbox\": \"^2.4.0\",\r\n    \"@react-buddy/palette-mui\": \"^5.0.1\"\r\n  },\r\n  \"scripts\": {\r\n    \"start\": \"react-scripts start\",\r\n    \"build\": \"react-scripts build\",\r\n    \"test\": \"react-scripts test\",\r\n    \"eject\": \"react-scripts eject\"\r\n  },\r\n  \"eslintConfig\": {\r\n    \"extends\": [\r\n      \"react-app\",\r\n      \"react-app/jest\"\r\n    ]\r\n  },\r\n  \"browserslist\": {\r\n    \"production\": [\r\n      \">0.2%\",\r\n      \"not dead\",\r\n      \"not op_mini all\"\r\n    ],\r\n    \"development\": [\r\n      \"last 1 chrome version\",\r\n      \"last 1 firefox version\",\r\n      \"last 1 safari version\"\r\n    ]\r\n  }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/package.json b/package.json
+--- a/package.json	(revision 7da988703aabe1881797c525ab3d6dee1f0ef193)
++++ b/package.json	(date 1708450454801)
+@@ -8,6 +8,8 @@
+     "@mui/icons-material": "^5.14.1",
+     "@mui/joy": "^5.0.0-beta.1",
+     "@mui/material": "^5.14.2",
++    "@react-buddy/ide-toolbox": "^2.4.0",
++    "@react-buddy/palette-mui": "^5.0.1",
+     "@reduxjs/toolkit": "^1.9.5",
+     "@testing-library/jest-dom": "^5.17.0",
+     "@testing-library/react": "^13.4.0",
+@@ -21,9 +23,7 @@
+     "react-scripts": "5.0.1",
+     "redux": "^4.2.1",
+     "sass": "^1.63.6",
+-    "web-vitals": "^2.1.4",
+-    "@react-buddy/ide-toolbox": "^2.4.0",
+-    "@react-buddy/palette-mui": "^5.0.1"
++    "web-vitals": "^2.1.4"
+   },
+   "scripts": {
+     "start": "react-scripts start",
+@@ -48,5 +48,8 @@
+       "last 1 firefox version",
+       "last 1 safari version"
+     ]
++  },
++  "devDependencies": {
++    "prettier": "^3.2.5"
+   }
+ }
